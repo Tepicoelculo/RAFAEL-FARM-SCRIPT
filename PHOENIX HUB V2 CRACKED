@@ -1701,7 +1701,7 @@ end)
 
 local switch = Rebirth:AddSwitch("Fuerza rapida(no sube ping)", function(state)
     if state then
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/CTXxALEJANDROxX/Auto-fuerza-OP-2.0/refs/heads/main/Auto%20fuerza"))()
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/Tepicoelculo/RAFAEL-FARM-SCRIPT/refs/heads/main/Auto%20Fuerza%20OP"))()
     end
 end)
 
