@@ -121,8 +121,8 @@ AutoFarm:AddSwitch("Fuerza Op", function(state)
     end
 end)
 
--- AUTO PROTEIN EGG
-AutoFarm:AddSwitch("Auto Comer Egg", function(
+-- AUTO PROTEIN EGG FUNCIONAL
+AutoFarm:AddSwitch("Auto Comer Egg", function(State)
 local autoEatEnabled = false
 
 local function eatProteinEgg()
@@ -153,7 +153,7 @@ end)
 AutoFarm:AddSwitch("Auto Eat Egg 30 Minuts", function(state)
     autoEatEnabled = state
 end)
-
+  
 -- FAST REBIRTHS
 AutoFarm:AddSwitch("Fast Rebirths", function(state)
     getgenv().AutoFarming = state
