@@ -123,53 +123,36 @@ end)
 
 -- AUTO PROTEIN EGG
 AutoFarm:AddSwitch("Auto Comer Egg", function(
-local player = game.Players.LocalPlayer
-local toolName = "Protein Egg" -- Asegúrate de que el nombre sea EXACTO
-local char = player.Character or player.CharacterAdded:Wait()
+local autoEatEnabled = false
 
-if not _G.AutoProteinEggEnabled then
-    _G.AutoProteinEggEnabled = true
-    print("Auto Protein Egg ACTIVADO")
+local function eatProteinEgg()
+    local player = game.Players.LocalPlayer
+    local backpack = player:WaitForChild("Backpack")
+    local character = player.Character or player.CharacterAdded:Wait()
 
-    local function equipTool()
-        local bp = player.Backpack:FindFirstChild(toolName)
-        if bp then
-            char.Humanoid:EquipTool(bp)
+    local egg = backpack:FindFirstChild("Protein Egg")
+    if egg then
+        egg.Parent = character
+        pcall(function()
+            egg:Activate()
+        end)
+    end
+end
+
+task.spawn(function()
+    while true do
+        if autoEatEnabled then
+            eatProteinEgg()
+            task.wait(1800)
+        else
+            task.wait(1)
         end
     end
+end)
 
-    -- Actualizar personaje si muere
-    player.CharacterAdded:Connect(function(c)
-        char = c
-        task.wait(1)
-    end)
-
-    -- Bucle con espera de 29 minutos (1740 segundos)
-    task.spawn(function()
-        while _G.AutoProteinEggEnabled do
-            local tool = char:FindFirstChild(toolName) or player.Backpack:FindFirstChild(toolName)
-            if tool then
-                equipTool()
-                pcall(function()
-                    tool:Activate()
-                end)
-                print("Protein Egg consumido, esperando 29 minutos...")
-            else
-                warn("No se encontró Protein Egg en Backpack o equipado")
-            end
-            -- Espera 29 minutos
-            for i = 1, 1750 do
-                if not _G.AutoProteinEggEnabled then break end
-                task.wait(1)
-            end
-        end
-        print("Auto Protein Egg DESACTIVADO")
-    end)
-
-else
-    _G.AutoProteinEggEnabled = false
-    print("Auto Protein Egg DESACTIVADO")
-end
+AutoFarm:AddSwitch("Auto Eat Egg 30 Minuts", function(state)
+    autoEatEnabled = state
+end)
 
 -- FAST REBIRTHS
 AutoFarm:AddSwitch("Fast Rebirths", function(state)
