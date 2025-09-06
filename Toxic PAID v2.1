@@ -21,7 +21,7 @@ local RunService = game:GetService("RunService")
 -- CONFIGURACIONES
 local PET_NAME = "Swift Samurai"
 local ROCK_NAME = "Rock5M"
-local PROTEIN_EGG_NAME = "ProteinEgg"
+local PROTEIN_EGG_NAME = "Protein Egg"
 local PROTEIN_EGG_INTERVAL = 30 * 60
 local REPS_PER_CYCLE = 60
 local REP_DELAY = 0.01
@@ -53,17 +53,6 @@ local function equipPet()
         for _, pet in pairs(petsFolder.Unique:GetChildren()) do
             if pet.Name == PET_NAME then
                 ReplicatedStorage.rEvents.equipPetEvent:FireServer("equipPet", pet)
-                break
-            end
-        end
-    end
-end
-
-local function eatProteinEgg()
-    if LocalPlayer:FindFirstChild("Backpack") then
-        for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
-            if item.Name == PROTEIN_EGG_NAME then
-                ReplicatedStorage.rEvents.eatEvent:FireServer("eat", item)
                 break
             end
         end
@@ -103,10 +92,6 @@ AutoFarm:AddSwitch("Fuerza Op", function(state)
                                 LocalPlayer.muscleEvent:FireServer("rep")
                             end
                         end
-                        if tick() - lastProteinEggTime >= PROTEIN_EGG_INTERVAL then
-                            eatProteinEgg()
-                            lastProteinEggTime = tick()
-                        end
                         if tick() - lastRockTime >= ROCK_INTERVAL then
                             hitRock()
                             lastRockTime = tick()
@@ -121,8 +106,7 @@ AutoFarm:AddSwitch("Fuerza Op", function(state)
     end
 end)
 
--- AUTO PROTEIN EGG FUNCIONAL
-AutoFarm:AddSwitch("Auto Comer Egg", function(State)
+-- ✅ AUTO COMER EGG (Nuevo)
 local autoEatEnabled = false
 
 local function eatProteinEgg()
@@ -132,10 +116,13 @@ local function eatProteinEgg()
 
     local egg = backpack:FindFirstChild("Protein Egg")
     if egg then
-        egg.Parent = character
+        egg.Parent = character -- equipa el huevo
         pcall(function()
             egg:Activate()
         end)
+        print("[AutoEgg] Protein Egg consumido.")
+    else
+        warn("[AutoEgg] No se encontró Protein Egg en Backpack.")
     end
 end
 
@@ -143,17 +130,22 @@ task.spawn(function()
     while true do
         if autoEatEnabled then
             eatProteinEgg()
-            task.wait(1800)
+            task.wait(1800) -- espera 30 minutos
         else
             task.wait(1)
         end
     end
 end)
 
-AutoFarm:AddSwitch("Auto Eat Egg 30 Minuts", function(state)
+AutoFarm:AddSwitch("Auto Comer Egg (30 Min)", function(state)
     autoEatEnabled = state
+    if state then
+        print("[AutoEgg] Activado.")
+    else
+        print("[AutoEgg] Desactivado.")
+    end
 end)
-  
+
 -- FAST REBIRTHS
 AutoFarm:AddSwitch("Fast Rebirths", function(state)
     getgenv().AutoFarming = state
