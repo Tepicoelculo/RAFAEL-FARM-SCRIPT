@@ -632,19 +632,13 @@ Calculadora2:AddButton("Calcular", function()
 end)
 
 
-local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local player = Players.LocalPlayer
-
-local muscleEvent = ReplicatedStorage:WaitForChild("rEvents"):WaitForChild("muscleEvent")
-
 -- ===============================
 -- PESTAÑA: Créditos
 -- ===============================
 local Credits = window:AddTab("Credits")
+Credits:Show() -- ✅ fuerza a que se muestre de inmediato
 
 Credits:AddLabel("Version 2").TextSize = 22
 Credits:AddLabel("Script Hecho por:").TextSize = 20
 Credits:AddLabel("Rafael and Jxss").TextSize = 20
 Credits:AddLabel("tiktok: DeathKiller and JxssMZRG").TextSize = 20
-
