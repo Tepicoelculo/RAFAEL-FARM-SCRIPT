@@ -640,52 +640,55 @@ local muscleEvent = ReplicatedStorage:WaitForChild("rEvents"):WaitForChild("musc
 
 ||||INVENTARIO||||
 
-local InventoryTab = window:CreateTab("Inventory")
+local InventoryTab = window:AddTab("Inventory")
+-- INVENTORY TAB
 
 InventoryTab:AddLabel("Egg Gifter:").TextSize = 22
 
 local proteinEggLabel = InventoryTab:AddLabel("Protein Eggs: 0")
 proteinEggLabel.TextSize = 20
 
-local selectedPlayerEgg = nil
+local selectedPlayer = nil
 local eggCount = 0
 
-local playerDropdownEgg =
+local playerDropdown =
     InventoryTab:AddDropdown(
-    "Choose Player (Egg)",
+    "Choose Player",
     function(name)
-        selectedPlayerEgg = Players:FindFirstChild(name)
+        selectedPlayer = Players:FindFirstChild(name)
     end
 )
 
-for _, plr in ipairs(Players:GetPlayers()) do
-    if plr ~= player then
-        playerDropdownEgg:Add(plr.Name)
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= Players.LocalPlayer then
+        playerDropdown:Add(player.Name)
     end
 end
 
-Players.PlayerAdded:Connect(function(plr)
-    if plr ~= player then
-        playerDropdownEgg:Add(plr.Name)
+Players.PlayerAdded:Connect(
+    function(player)
+        if player ~= Players.LocalPlayer then
+            playerDropdown:Add(player.Name)
+        end
     end
-end)
+)
 
 InventoryTab:AddTextBox(
-    "Amount Eggs",
+    "Amount",
     function(Text)
         eggCount = tonumber(Text)
     end
 )
 
 InventoryTab:AddButton(
-    "Start Gifting Eggs",
+    "Start Gifting",
     function()
-        if selectedPlayerEgg and eggCount and eggCount > 0 then
+        if selectedPlayer and eggCount and eggCount > 0 then
             for i = 1, eggCount do
                 local args = {
                     [1] = "giftRequest",
-                    [2] = selectedPlayerEgg,
-                    [3] = player.consumablesFolder:FindFirstChild("Protein Egg")
+                    [2] = selectedPlayer,
+                    [3] = Players.LocalPlayer.consumablesFolder:FindFirstChild("Protein Egg")
                 }
                 ReplicatedStorage.rEvents.giftRemote:InvokeServer(unpack(args))
             end
@@ -703,7 +706,7 @@ local function updateItemCount()
     local proteinEggCount = 0
     local tropicalShakeCount = 0
 
-    local backpack = player:WaitForChild("Backpack")
+    local backpack = Players.LocalPlayer:WaitForChild("Backpack")
     if backpack then
         for _, item in ipairs(backpack:GetChildren()) do
             if item.Name == "Protein Egg" then
@@ -725,45 +728,45 @@ task.spawn(function()
     end
 end)
 
-local selectedPlayerShake = nil
+local selectedPlayer = nil
 local shakeCount = 0
 
-local playerDropdownShake =
+local playerDropdown =
     InventoryTab:AddDropdown(
-    "Choose Player (Shake)",
+    "Choose Player",
     function(name)
-        selectedPlayerShake = Players:FindFirstChild(name)
+        selectedPlayer = Players:FindFirstChild(name)
     end
 )
 
-for _, plr in ipairs(Players:GetPlayers()) do
-    if plr ~= player then
-        playerDropdownShake:Add(plr.Name)
+for _, player in ipairs(Players:GetPlayers()) do
+    if player ~= Players.LocalPlayer then
+        playerDropdown:Add(player.Name)
     end
 end
 
-Players.PlayerAdded:Connect(function(plr)
-    if plr ~= player then
-        playerDropdownShake:Add(plr.Name)
+Players.PlayerAdded:Connect(function(player)
+    if player ~= Players.LocalPlayer then
+        playerDropdown:Add(player.Name)
     end
 end)
 
 InventoryTab:AddTextBox(
-    "Amount Shakes",
+    "Amount",
     function(Text)
         shakeCount = tonumber(Text)
     end
 )
 
 InventoryTab:AddButton(
-    "Start Gifting Shakes",
+    "Start Gifting",
     function()
-        if selectedPlayerShake and shakeCount and shakeCount > 0 then
+        if selectedPlayer and shakeCount and shakeCount > 0 then
             for i = 1, shakeCount do
                 local args = {
                     [1] = "giftRequest",
-                    [2] = selectedPlayerShake,
-                    [3] = player.consumablesFolder:FindFirstChild("Tropical Shake")
+                    [2] = selectedPlayer,
+                    [3] = Players.LocalPlayer.consumablesFolder:FindFirstChild("Tropical Shake")
                 }
                 ReplicatedStorage.rEvents.giftRemote:InvokeServer(unpack(args))
             end
@@ -781,11 +784,11 @@ local function activateProteinEgg()
     end
 end
 
-local runningEggDevour = false
+local running = false
 
 task.spawn(function()
     while true do
-        if runningEggDevour then
+        if running then
             activateProteinEgg()
             task.wait(0.25)
         else
@@ -794,17 +797,17 @@ task.spawn(function()
     end
 end)
 
-local switchEgg =
+local switch =
     InventoryTab:AddSwitch(
     "Egg Devour",
     function(state)
-        runningEggDevour = state
+        running = state
         if state then
             activateProteinEgg()
         end
     end
 )
-switchEgg:Set(false)
+switch:Set(false)
 
 -- EAT EVERYTHING
 local itemList = {
@@ -846,11 +849,11 @@ local function activateRandomItems(count)
     end
 end
 
-local runningEatEverything = false
+local running = false
 
 task.spawn(function()
     while true do
-        if runningEatEverything then
+        if running then
             activateRandomItems(4)
             task.wait(0.5)
         else
@@ -859,14 +862,20 @@ task.spawn(function()
     end
 end)
 
-local switchEatEverything =
+local switch =
     InventoryTab:AddSwitch(
     "Eat Everything",
     function(state)
-        runningEatEverything = state
+        running = state
         if state then
             activateRandomItems(4)
         end
     end
 )
-switchEatEverything:Set(false)
+switch:Set(false)
+local Credits = window:AddTab("Credits")
+
+Credits:AddLabel("Version 2")
+Credits:AddLabel("Script Hecho por:")
+Credits:AddLabel("Rafael and Jxss")
+Credits:AddLabel("tiktok: DeathKiller and JxssMZRG")
