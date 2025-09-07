@@ -364,3 +364,28 @@ AutoFarm:AddSwitch("Anti Lag", function(State)
     end
 end)
 
+-- ANTI AFK
+-- ANTI AFK (Optimizado)
+local antiAFKConnection
+AutoFarm:AddSwitch("Anti AFK", function(State)
+    if State then
+        local Player = game.Players.LocalPlayer
+        local VirtualUser = game:GetService("VirtualUser")
+        
+        local function setupAntiAFK()
+            if antiAFKConnection then
+                antiAFKConnection:Disconnect()
+            end
+            antiAFKConnection = Player.Idled:Connect(function()
+                VirtualUser:CaptureController()
+                VirtualUser:ClickButton2(Vector2.new())
+            end)
+        end
+        setupAntiAFK()
+    else
+        if antiAFKConnection then
+            antiAFKConnection:Disconnect()
+            antiAFKConnection = nil
+        end
+    end
+end)
