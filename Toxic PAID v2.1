@@ -638,9 +638,13 @@ local player = Players.LocalPlayer
 
 local muscleEvent = ReplicatedStorage:WaitForChild("rEvents"):WaitForChild("muscleEvent")
 
+-- ===============================
+-- PESTAÑA: Créditos
+-- ===============================
 local Credits = window:AddTab("Credits")
 
-Credits:AddLabel("Version 2")
-Credits:AddLabel("Script Hecho por:")
-Credits:AddLabel("Rafael and Jxss")
-Credits:AddLabel("tiktok: DeathKiller and JxssMZRG")
+Credits:AddLabel("Version 2").TextSize = 22
+Credits:AddLabel("Script Hecho por:").TextSize = 20
+Credits:AddLabel("Rafael and Jxss").TextSize = 20
+Credits:AddLabel("tiktok: DeathKiller and JxssMZRG").TextSize = 20
+
