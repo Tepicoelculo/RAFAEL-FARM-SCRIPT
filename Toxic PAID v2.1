@@ -110,7 +110,7 @@ end
 -- ===== SWITCHES =====
 
 -- AUTO FUERZA OP
-AutoFarm:AddSwitch("Fuerza Op", function(state)
+AutoFarm:AddSwitch("Strength OP", function(state)
     getgenv()._AutoRepFarmEnabled = state
     if not getgenv()._AutoRepFarmLoop then
         getgenv()._AutoRepFarmLoop = true
@@ -175,7 +175,7 @@ task.spawn(function()
     end
 end)
 
-AutoFarm:AddSwitch("Auto Comer Egg (30 Min)", function(state)
+AutoFarm:AddSwitch("Eat Egg (30 Min)", function(state)
     autoEatEnabled = state
     if state then
         print("[AutoEgg] Activado.")
@@ -259,7 +259,7 @@ end)
 
 -- AUTO JUNGLE SQUAT
 local jungleSquatToggle = false
-AutoFarm:AddSwitch("Auto Jungle Squat", function(State)
+AutoFarm:AddSwitch("Jungle Squat", function(State)
     jungleSquatToggle = State
     if State then
         task.spawn(function()
@@ -283,7 +283,7 @@ end)
 
 -- AUTO JUNGLE BAR LIFT
 local jungleBarLiftToggle = false
-AutoFarm:AddSwitch("Auto Jungle Bar Lift", function(State)
+AutoFarm:AddSwitch("Jungle Bar Lift", function(State)
     jungleBarLiftToggle = State
     if State then
         task.spawn(function()
@@ -391,7 +391,7 @@ AutoFarm:AddSwitch("Anti AFK", function(state)
 end)
 
 -- 📊 NUEVA PESTAÑA: CALCULAR STATS
-local features = window:AddTab("Calcular Stats")
+local features = window:AddTab("Calculate Stats")
 features:Show()
 
 local player = game.Players.LocalPlayer
@@ -506,14 +506,14 @@ end)
 -- ===========================
 -- PESTAÑA: Calculadora de Daño
 -- ===========================
-local Calculadora = window:AddTab("Calculadora", Color3.fromRGB(200, 100, 100))
+local Calculadora = window:AddTab("Calculate Packs Damage", Color3.fromRGB(200, 100, 100))
 
 local baseStrength = 0
 local resultadoLabelsDamage = {}
 
 Calculadora:AddLabel("Pack Damage Calculator")
 
-Calculadora:AddTextBox("Fuerza Base (ej: 1.27Qa, T, B)", function(text)
+Calculadora:AddTextBox("Fuerza Base (ej: 1.87Qa, T, B)", function(text)
     local unidades = { ["T"] = 1e12, ["Q"] = 1e15, ["B"] = 1e9 }
     text = text:upper()
     for u, m in pairs(unidades) do
@@ -534,7 +534,7 @@ for i = 1, 8 do
     resultadoLabelsDamage[i] = Calculadora:AddLabel(string.format("%d pack(s): -", i))
 end
 
-Calculadora:AddButton("Calcular", function()
+Calculadora:AddButton("Calculate", function()
     if baseStrength <= 0 then
         mensajeLabelDamage.Text = "Ingresa un valor válido."
         for i = 1, 8 do
@@ -570,14 +570,14 @@ end)
 -- ===============================
 -- PESTAÑA: Calculadora de Durabilidad
 -- ===============================
-local Calculadora2 = window:AddTab("Calculadora 2", Color3.fromRGB(200, 100, 100))
+local Calculadora2 = window:AddTab("Calculate Packs Durability", Color3.fromRGB(200, 100, 100))
 
 local baseDurabilidad = 0
 local resultadoLabelsDurability = {}
 
 Calculadora2:AddLabel("Pack Durability Calculator")
 
-Calculadora2:AddTextBox("Durabilidad base (ej: 1.27Qa, T, B)", function(text)
+Calculadora2:AddTextBox("Durabilidad base (ej: 1.87Qa, T, B)", function(text)
     local unidades = { ["T"] = 1e12, ["Q"] = 1e15, ["B"] = 1e9 }
     text = text:upper()
     for u, m in pairs(unidades) do
@@ -634,7 +634,7 @@ end)
 -- =========================
 -- PESTAÑA: INVENTARIO
 -- =========================
-local InventoryTab = window:AddTab("Inventory")
+local InventoryTab = window:AddTab("Egg/Shake Gifter")
 
 -- EGG GIFTER
 InventoryTab:AddLabel("Egg Gifter:").TextSize = 22
