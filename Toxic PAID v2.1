@@ -64,7 +64,7 @@ local PROTEIN_EGG_INTERVAL = 30 * 60
 local REPS_PER_CYCLE = 60
 local REP_DELAY = 0.01
 local ROCK_INTERVAL = 5
-local MAX_PING = 1000
+local MAX_PING = 200
 
 -- REFERENCIAS
 local HumanoidRootPart
@@ -77,7 +77,7 @@ local function getPing()
     local success, ping = pcall(function()
         return Stats.Network.ServerStatsItem["Data Ping"]:GetValue()
     end)
-    return success and ping or 999
+    return success and ping or 19999
 end
 
 local function updateCharacterRefs()
