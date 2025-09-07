@@ -365,27 +365,27 @@ AutoFarm:AddSwitch("Anti Lag", function(State)
 end)
 
 -- ANTI AFK
--- ANTI AFK (Optimizado)
 local antiAFKConnection
-AutoFarm:AddSwitch("Anti AFK", function(State)
-    if State then
-        local Player = game.Players.LocalPlayer
-        local VirtualUser = game:GetService("VirtualUser")
-        
-        local function setupAntiAFK()
-            if antiAFKConnection then
-                antiAFKConnection:Disconnect()
-            end
-            antiAFKConnection = Player.Idled:Connect(function()
-                VirtualUser:CaptureController()
-                VirtualUser:ClickButton2(Vector2.new())
-            end)
+local VirtualUser = game:GetService("VirtualUser")
+local LocalPlayer = game.Players.LocalPlayer
+
+AutoFarm:AddSwitch("Anti AFK", function(state)
+    if state then
+        -- Activar Anti-AFK
+        if antiAFKConnection then
+            antiAFKConnection:Disconnect()
         end
-        setupAntiAFK()
+        antiAFKConnection = LocalPlayer.Idled:Connect(function()
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new())
+        end)
+        print("[AntiAFK] Activado")
     else
+        -- Desactivar Anti-AFK
         if antiAFKConnection then
             antiAFKConnection:Disconnect()
             antiAFKConnection = nil
         end
+        print("[AntiAFK] Desactivado")
     end
 end)
