@@ -1,4 +1,4 @@
-local whitelist = {
+    local whitelist = {
     ["adotdino974"] = true,
     ["TheReal9818"] = true,
     ["Doritosdezz_0"] = true,
@@ -42,7 +42,7 @@ local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/memej
 -- VENTANA PRINCIPAL
 local window = library:AddWindow("Toxic PAID V2 | By Rafael", {
     main_color = Color3.fromRGB(0, 0, 255), -- Azul
-    min_size = Vector2.new(750, 820),
+    min_size = Vector2.new(715, 850),
     can_resize = false,
 })
 
@@ -63,10 +63,10 @@ local PET_NAME = "Swift Samurai"
 local ROCK_NAME = "Rock5M"
 local PROTEIN_EGG_NAME = "ProteinEgg"
 local PROTEIN_EGG_INTERVAL = 30 * 60 -- 30 min
-local REPS_PER_CYCLE = 70
+local REPS_PER_CYCLE = 60
 local REP_DELAY = 0.01
 local ROCK_INTERVAL = 5
-local MAX_PING = 1200
+local MAX_PING = 1100
 
 local HumanoidRootPart
 local lastProteinEggTime = 0
@@ -647,8 +647,6 @@ Calculadora2:AddButton("Calcular", function()
     end
 end)
 
-
-|||||| KILLS ||||||
 local Killer = window:AddTab("Kills")
 
 local Players = game:GetService("Players")
