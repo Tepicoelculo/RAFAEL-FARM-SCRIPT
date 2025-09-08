@@ -6,7 +6,7 @@ local whitelist = {
     ["kkaconsal"] = true,
     ["Gato_pro239"] = true,
     ["pro9pup"] = true,
-    [""] = true,
+    ["BrizzyTK"] = true,
     [""] = true,
     [""] = true,
     [""] = true,
@@ -42,37 +42,37 @@ local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/memej
 -- VENTANA PRINCIPAL
 local window = library:AddWindow("Toxic PAID V2 | By Rafael", {
     main_color = Color3.fromRGB(0, 0, 255), -- Azul
-    min_size = Vector2.new(600, 500),
+    min_size = Vector2.new(715, 1200),
     can_resize = false,
 })
 
--- PESTAÑA PRINCIPAL
-local AutoFarm = window:AddTab("Farmeo Op")
+local AutoFarm = window:AddTab("Farm OP")
 
--- SERVICIOS
+AutoFarm:AddSwitch("Fuerza OP", function(state)
+    getgenv()._AutoRepFarmEnabled = state
+    warn("[Auto Rep Farm] Estado cambiado a:", state and "ON" or "OFF")
+end)
+
+-- ✅ Configuración optimizada
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
 local Stats = game:GetService("Stats")
 local LocalPlayer = Players.LocalPlayer
-local RunService = game:GetService("RunService")
 
--- CONFIGURACIONES
 local PET_NAME = "Swift Samurai"
 local ROCK_NAME = "Rock5M"
-local PROTEIN_EGG_NAME = "Protein Egg"
-local PROTEIN_EGG_INTERVAL = 30 * 60
+local PROTEIN_EGG_NAME = "ProteinEgg"
+local PROTEIN_EGG_INTERVAL = 30 * 60 -- 30 min
 local REPS_PER_CYCLE = 60
 local REP_DELAY = 0.01
 local ROCK_INTERVAL = 5
-local MAX_PING = 1000
+local MAX_PING = 1100
 
--- REFERENCIAS
 local HumanoidRootPart
 local lastProteinEggTime = 0
 local lastRockTime = 0
 local RockRef = workspace:FindFirstChild(ROCK_NAME)
 
--- FUNCIONES
 local function getPing()
     local success, ping = pcall(function()
         return Stats.Network.ServerStatsItem["Data Ping"]:GetValue()
@@ -97,6 +97,17 @@ local function equipPet()
     end
 end
 
+local function eatProteinEgg()
+    if LocalPlayer:FindFirstChild("Backpack") then
+        for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
+            if item.Name == PROTEIN_EGG_NAME then
+                ReplicatedStorage.rEvents.eatEvent:FireServer("eat", item)
+                break
+            end
+        end
+    end
+end
+
 local function hitRock()
     if not RockRef or not RockRef.Parent then
         RockRef = workspace:FindFirstChild(ROCK_NAME)
@@ -107,42 +118,47 @@ local function hitRock()
     end
 end
 
--- ===== SWITCHES =====
+-- ✅ Loop principal
+if not getgenv()._AutoRepFarmLoop then
+    getgenv()._AutoRepFarmLoop = true
 
--- AUTO FUERZA OP
-AutoFarm:AddSwitch("Fuerza Op", function(state)
-    getgenv()._AutoRepFarmEnabled = state
-    if not getgenv()._AutoRepFarmLoop then
-        getgenv()._AutoRepFarmLoop = true
-        task.spawn(function()
-            updateCharacterRefs()
-            equipPet()
-            lastProteinEggTime = tick()
-            lastRockTime = tick()
-            while true do
-                if getgenv()._AutoRepFarmEnabled then
-                    local ping = getPing()
-                    if ping > MAX_PING then
-                        task.wait(5)
-                    else
-                        if LocalPlayer:FindFirstChild("muscleEvent") then
-                            for i = 1, REPS_PER_CYCLE do
-                                LocalPlayer.muscleEvent:FireServer("rep")
-                            end
-                        end
-                        if tick() - lastRockTime >= ROCK_INTERVAL then
-                            hitRock()
-                            lastRockTime = tick()
-                        end
-                        task.wait(REP_DELAY)
-                    end
+    task.spawn(function()
+        updateCharacterRefs()
+        equipPet()
+        lastProteinEggTime = tick()
+        lastRockTime = tick()
+
+        while true do
+            if getgenv()._AutoRepFarmEnabled then
+                local ping = getPing()
+                if ping > MAX_PING then
+                    warn("[Auto Rep Farm] Ping alto ("..math.floor(ping).."ms), pausando 5s...")
+                    task.wait(5)
                 else
-                    task.wait(1)
+                    if LocalPlayer:FindFirstChild("muscleEvent") then
+                        for i = 1, REPS_PER_CYCLE do
+                            LocalPlayer.muscleEvent:FireServer("rep")
+                        end
+                    end
+
+                    if tick() - lastProteinEggTime >= PROTEIN_EGG_INTERVAL then
+                        eatProteinEgg()
+                        lastProteinEggTime = tick()
+                    end
+
+                    if tick() - lastRockTime >= ROCK_INTERVAL then
+                        hitRock()
+                        lastRockTime = tick()
+                    end
+
+                    task.wait(REP_DELAY)
                 end
+            else
+                task.wait(1)
             end
-        end)
-    end
-end)
+        end
+    end)
+end
 
 -- ✅ AUTO COMER EGG (Nuevo)
 local autoEatEnabled = false
@@ -175,7 +191,7 @@ task.spawn(function()
     end
 end)
 
-AutoFarm:AddSwitch("Auto Comer Egg (30 Min)", function(state)
+AutoFarm:AddSwitch("Eat Egg (30 Min)", function(state)
     autoEatEnabled = state
     if state then
         print("[AutoEgg] Activado.")
@@ -259,7 +275,7 @@ end)
 
 -- AUTO JUNGLE SQUAT
 local jungleSquatToggle = false
-AutoFarm:AddSwitch("Auto Jungle Squat", function(State)
+AutoFarm:AddSwitch("Jungle Squat", function(State)
     jungleSquatToggle = State
     if State then
         task.spawn(function()
@@ -283,7 +299,7 @@ end)
 
 -- AUTO JUNGLE BAR LIFT
 local jungleBarLiftToggle = false
-AutoFarm:AddSwitch("Auto Jungle Bar Lift", function(State)
+AutoFarm:AddSwitch("Jungle Bar Lift", function(State)
     jungleBarLiftToggle = State
     if State then
         task.spawn(function()
@@ -391,7 +407,7 @@ AutoFarm:AddSwitch("Anti AFK", function(state)
 end)
 
 -- 📊 NUEVA PESTAÑA: CALCULAR STATS
-local features = window:AddTab("Calcular Stats")
+local features = window:AddTab("Calculadora Stats")
 features:Show()
 
 local player = game.Players.LocalPlayer
@@ -502,3 +518,133 @@ task.spawn(function()
         task.wait(0.05)
     end
 end)
+
+-- ===========================
+-- PESTAÑA: Calculadora de Daño
+-- ===========================
+local Calculadora = window:AddTab("Calculadora 1", Color3.fromRGB(200, 100, 100))
+
+local baseStrength = 0
+local resultadoLabelsDamage = {}
+
+Calculadora:AddLabel("Pack Damage Calculator")
+
+Calculadora:AddTextBox("Fuerza Base (ej: 1.87Qa, T, B)", function(text)
+    local unidades = { ["T"] = 1e12, ["Q"] = 1e15, ["B"] = 1e9 }
+    text = text:upper()
+    for u, m in pairs(unidades) do
+        if text:find(u) then
+            local num = tonumber(text:match("(%d+%.?%d*)"))
+            if num then
+                baseStrength = num * m
+                return
+            end
+        end
+    end
+    baseStrength = tonumber(text:match("(%d+%.?%d*)")) or 0
+end)
+
+local mensajeLabelDamage = Calculadora:AddLabel("") -- Label para mostrar errores
+
+for i = 1, 8 do
+    resultadoLabelsDamage[i] = Calculadora:AddLabel(string.format("%d pack(s): -", i))
+end
+
+Calculadora:AddButton("Calculate", function()
+    if baseStrength <= 0 then
+        mensajeLabelDamage.Text = "Ingresa un valor válido."
+        for i = 1, 8 do
+            resultadoLabelsDamage[i].Text = string.format("%d pack(s): -", i)
+        end
+        return
+    end
+
+    mensajeLabelDamage.Text = ""
+
+    local danoAjustado = baseStrength * 0.10
+    local incremento = 0.335
+
+    for pack = 1, 8 do
+        local mult = 1 + (pack * incremento)
+        local valor = danoAjustado * mult
+
+        local disp
+        if valor >= 1e15 then
+            disp = string.format("%.3f Qa", valor / 1e15)
+        elseif valor >= 1e12 then
+            disp = string.format("%.2f T", valor / 1e12)
+        elseif valor >= 1e9 then
+            disp = string.format("%.2f B", valor / 1e9)
+        else
+            disp = tostring(math.floor(valor))
+        end
+
+        resultadoLabelsDamage[pack].Text = string.format("%d pack(s): %s", pack, disp)
+    end
+end)
+
+-- ===============================
+-- PESTAÑA: Calculadora de Durabilidad
+-- ===============================
+local Calculadora2 = window:AddTab("Calculadora 2", Color3.fromRGB(200, 100, 100))
+
+local baseDurabilidad = 0
+local resultadoLabelsDurability = {}
+
+Calculadora2:AddLabel("Pack Durability Calculator")
+
+Calculadora2:AddTextBox("Durabilidad base (ej: 1.87Qa, T, B)", function(text)
+    local unidades = { ["T"] = 1e12, ["Q"] = 1e15, ["B"] = 1e9 }
+    text = text:upper()
+    for u, m in pairs(unidades) do
+        if text:find(u) then
+            local num = tonumber(text:match("(%d+%.?%d*)"))
+            if num then
+                baseDurabilidad = num * m
+                return
+            end
+        end
+    end
+    baseDurabilidad = tonumber(text:match("(%d+%.?%d*)")) or 0
+end)
+
+local mensajeLabelDurability = Calculadora2:AddLabel("")
+
+for i = 1, 8 do
+    resultadoLabelsDurability[i] = Calculadora2:AddLabel(string.format("%d pack(s): -", i))
+end
+
+Calculadora2:AddButton("Calcular", function()
+    if baseDurabilidad <= 0 then
+        mensajeLabelDurability.Text = "Ingresa un valor válido."
+        for i = 1, 8 do
+            resultadoLabelsDurability[i].Text = string.format("%d pack(s): -", i)
+        end
+        return
+    end
+
+    mensajeLabelDurability.Text = ""
+
+    local incremento = 0.335
+    local adicional = 1.5
+
+    for pack = 1, 8 do
+        local mult = 1 + (pack * incremento)
+        local valor = baseDurabilidad * mult * adicional
+
+        local disp
+        if valor >= 1e15 then
+            disp = string.format("%.3f Qa", valor / 1e15)
+        elseif valor >= 1e12 then
+            disp = string.format("%.2f T", valor / 1e12)
+        elseif valor >= 1e9 then
+            disp = string.format("%.2f B", valor / 1e9)
+        else
+            disp = tostring(math.floor(valor))
+        end
+
+        resultadoLabelsDurability[pack].Text = string.format("%d pack(s): %s", pack, disp)
+    end
+end)
+
+
