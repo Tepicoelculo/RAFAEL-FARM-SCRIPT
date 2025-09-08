@@ -2856,7 +2856,7 @@ for _, option in ipairs(timeOptions) do
     timeDropdown:Add(option)
 end
 
-local estadisticas = window:AddTab("estadisticas")
+local estadisticas = window:AddTab("Stats Jugadores")
 
 local SelectPlayerName = ""
 
