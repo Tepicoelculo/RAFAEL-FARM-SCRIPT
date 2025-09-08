@@ -1,4 +1,4 @@
-local whitelist = {
+    local whitelist = {
     ["adotdino974"] = true,
     ["TheReal9818"] = true,
     ["Doritosdezz_0"] = true,
@@ -2787,7 +2787,7 @@ Killer:AddButton("Tamaño NaN", function()
     game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("changeSpeedSizeRemote"):InvokeServer(unpack(args))
 end)
 Killer:AddButton("Activar pegar muerto", function()
-    loadstring(game:HttpGet("https://raw.githubusercontent.com/PheonixHub/Script-combinando-kill/main/Script%20para%20no%20comer%20eggs"))()
+    loadstring(game:HttpGet("https://github.com/Tepicoelculo/RAFAEL-FARM-SCRIPT/blob/main/No%20comer%20Egg"))()
 end)
 
 
