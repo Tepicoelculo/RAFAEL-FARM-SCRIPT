@@ -42,7 +42,7 @@ local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/memej
 -- VENTANA PRINCIPAL
 local window = library:AddWindow("Toxic PAID V2 | By Rafael", {
     main_color = Color3.fromRGB(0, 0, 255), -- Azul
-    min_size = Vector2.new(715, 850),
+    min_size = Vector2.new(780, 850),
     can_resize = false,
 })
 
@@ -3368,3 +3368,18 @@ local switch =
         end
     end
 )
+
+-- ===============================
+-- PESTAÑA: Créditos
+-- ===============================
+local Credits = window:AddTab("Créditos") -- ✅ Usa nombre en español si prefieres
+
+-- ✅ En Elerium no hace falta :Show(), la pestaña se crea sola.
+-- Si quieres abrirla automáticamente al cargar, haz:
+window:SetTab(Credits)
+
+-- ✅ Crear labels correctamente
+Credits:AddLabel("Versión 2", 22)
+Credits:AddLabel("Script Hecho por:", 20)
+Credits:AddLabel("DeathKiller and Team MVX", 20)
+Credits:AddLabel("TikTok: DeathKiller", 20)
