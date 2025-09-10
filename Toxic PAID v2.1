@@ -3359,14 +3359,10 @@ local switch =
 -- ===============================
 -- PESTAÑA: Créditos
 -- ===============================
-local Credits = window:AddTab("Créditos") -- ✅ Usa nombre en español si prefieres
+local Credits = window:AddTab("Credits")
+Credits:Show() -- ✅ fuerza a que se muestre de inmediato
 
--- ✅ En Elerium no hace falta :Show(), la pestaña se crea sola.
--- Si quieres abrirla automáticamente al cargar, haz:
-window:SetTab(Credits)
-
--- ✅ Crear labels correctamente
-Credits:AddLabel("Versión 2", 22)
-Credits:AddLabel("Script Hecho por:", 20)
-Credits:AddLabel("DeathKiller and Team MVX", 20)
-Credits:AddLabel("TikTok: DeathKiller", 20)
+Credits:AddLabel("Version 2").TextSize = 22
+Credits:AddLabel("Script Hecho por:").TextSize = 20
+Credits:AddLabel("Rafael and Team MVX").TextSize = 20
+Credits:AddLabel("tiktok: DeathKiller").TextSize = 20
