@@ -48,7 +48,10 @@ local window = library:AddWindow("Toxic PAID V2 | By Rafael", {
 
 local AutoFarm = window:AddTab("Farm OP")
 
-AutoFarm:AddSwitch("Fuerza OP", function(state)
+-- 📂 CREAR FOLDER
+local farmFolder = AutoFarm:AddFolder("Farm Packs")
+
+farmFolder("Fuerza OP", function(state)
     getgenv()._AutoRepFarmEnabled = state
     warn("[Auto Rep Farm] Estado cambiado a:", state and "ON" or "OFF")
 end)
@@ -192,7 +195,7 @@ task.spawn(function()
     end
 end)
 
-AutoFarm:AddSwitch("Eat Egg (30 Min)", function(state)
+farmFolder:AddSwitch("Eat Egg (30 Min)", function(state)
     autoEatEnabled = state
     if state then
         print("[AutoEgg] Activado.")
@@ -202,7 +205,7 @@ AutoFarm:AddSwitch("Eat Egg (30 Min)", function(state)
 end)
 
 -- FAST REBIRTHS
-AutoFarm:AddSwitch("Fast Rebirths", function(state)
+farmFolder("Fast Rebirths", function(state)
     getgenv().AutoFarming = state
     if state then
         task.spawn(function()
@@ -276,7 +279,7 @@ end)
 
 -- AUTO JUNGLE SQUAT
 local jungleSquatToggle = false
-AutoFarm:AddSwitch("Jungle Squat", function(State)
+farmFolder:AddSwitch("Jungle Squat", function(State)
     jungleSquatToggle = State
     if State then
         task.spawn(function()
@@ -300,7 +303,7 @@ end)
 
 -- AUTO JUNGLE BAR LIFT
 local jungleBarLiftToggle = false
-AutoFarm:AddSwitch("Jungle Bar Lift", function(State)
+farmFolder:AddSwitch("Jungle Bar Lift", function(State)
     jungleBarLiftToggle = State
     if State then
         task.spawn(function()
@@ -323,7 +326,7 @@ AutoFarm:AddSwitch("Jungle Bar Lift", function(State)
 end)
 
 -- LOCK POSITION
-AutoFarm:AddSwitch("Lock Position", function(Value)
+farmFolder:AddSwitch("Lock Position", function(Value)
     if Value then
         local currentPos = LocalPlayer.Character.HumanoidRootPart.CFrame
         getgenv().posLock = RunService.Heartbeat:Connect(function()
@@ -340,7 +343,7 @@ AutoFarm:AddSwitch("Lock Position", function(Value)
 end)
 
 -- ANTI LAG
-AutoFarm:AddSwitch("Anti Lag", function(State)
+farmFolder:AddSwitch("Anti Lag", function(State)
     local lighting = game:GetService("Lighting")
     if State then
         for _, gui in pairs(LocalPlayer.PlayerGui:GetChildren()) do
@@ -386,7 +389,7 @@ local antiAFKConnection
 local VirtualUser = game:GetService("VirtualUser")
 local LocalPlayer = game.Players.LocalPlayer
 
-AutoFarm:AddSwitch("Anti AFK", function(state)
+farmFolder:AddSwitch("Anti AFK", function(state)
     if state then
         -- Activar Anti-AFK
         if antiAFKConnection then
