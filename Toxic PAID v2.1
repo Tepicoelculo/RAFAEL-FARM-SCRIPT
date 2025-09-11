@@ -48,6 +48,8 @@ local window = library:AddWindow("Toxic PAID V2 | By Rafael", {
 
 local AutoFarm = window:AddTab("Farm OP")
 
+local autoFarmFolder = AutoFarm:AddFolder("Farm Packs")
+
 AutoFarm:AddSwitch("Fuerza OP", function(state)
     getgenv()._AutoRepFarmEnabled = state
     warn("[Auto Rep Farm] Estado cambiado a:", state and "ON" or "OFF")
