@@ -39,14 +39,18 @@ end
 -- CARGA DE LIBRERÍA
 local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/memejames/elerium-v2-ui-library/main/Library", true))()
 
--- 📌 PESTAÑA FARM OP
+-- VENTANA PRINCIPAL
+local window = library:AddWindow("Toxic PAID V2 | By Rafael", {
+    main_color = Color3.fromRGB(0, 0, 255), -- Azul
+    min_size = Vector2.new(760, 850),
+    can_resize = false,
+})
+
 local AutoFarm = window:AddTab("Farm OP")
 
--- 📂 Folder principal
-local autoFarmFolder = AutoFarm:AddFolder("Farm Packs")
+AutoFarm:AddFolder("Farm Packs")
 
--- ✅ Fuerza OP (con tu nuevo código)
-autoFarmFolder:AddSwitch("Fuerza OP", function(state)
+AutoFarm:AddSwitch("Fuerza OP", function(state)
     getgenv()._AutoRepFarmEnabled = state
     warn("[Auto Rep Farm] Estado cambiado a:", state and "ON" or "OFF")
 end)
@@ -157,7 +161,6 @@ if not getgenv()._AutoRepFarmLoop then
         end
     end)
 end
-
 
 -- ✅ AUTO COMER EGG (Nuevo)
 local autoEatEnabled = false
@@ -645,4 +648,3 @@ Calculadora2:AddButton("Calcular", function()
         resultadoLabelsDurability[pack].Text = string.format("%d pack(s): %s", pack, disp)
     end
 end)
-
