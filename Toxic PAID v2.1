@@ -48,8 +48,6 @@ local window = library:AddWindow("Toxic PAID V2 | By Rafael", {
 
 local AutoFarm = window:AddTab("Farm OP")
 
-AutoFarm:AddFolder("Farm Packs")
-
 AutoFarm:AddSwitch("Fuerza OP", function(state)
     getgenv()._AutoRepFarmEnabled = state
     warn("[Auto Rep Farm] Estado cambiado a:", state and "ON" or "OFF")
@@ -65,6 +63,7 @@ local PET_NAME = "Swift Samurai"
 local ROCK_NAME = "Rock5M"
 local PROTEIN_EGG_NAME = "ProteinEgg"
 local PROTEIN_EGG_INTERVAL = 30 * 60 -- 30 min
+local REPS_PER_CYCLE = 120
 local REPS_PER_CYCLE = 150
 local REP_DELAY = 0.01
 local ROCK_INTERVAL = 5
