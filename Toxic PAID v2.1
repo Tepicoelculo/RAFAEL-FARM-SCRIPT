@@ -647,19 +647,14 @@ Calculadora2:AddButton("Calcular", function()
     end
 end)
 
-
--- ===============================
--- PESTAÑA: AUTO GIFTER
--- ===============================
-
-local GiftTab = window:AddTab("Auto Gifter") -- ✅ Nueva pestaña en la UI
+-- NUEVA PESTAÑA PARA GIFTS
+local GiftTab = window:AddTab("Auto Gifter")
 local giftFolder = GiftTab:AddFolder("Gift System")
 
 local selectedGiftPlayer = nil
 local eggGiftCount = 0
 local shakeGiftCount = 0
 
--- Dropdown dinámico de jugadores
 local giftPlayerDropdown =
     giftFolder:AddDropdown(
     "Choose Player",
@@ -668,22 +663,20 @@ local giftPlayerDropdown =
     end
 )
 
--- Función para actualizar lista de jugadores
-local function refreshPlayerDropdown()
-    giftPlayerDropdown:Clear()
-    for _, targetPlayer in ipairs(Players:GetPlayers()) do
-        if targetPlayer ~= LocalPlayer then
-            giftPlayerDropdown:Add(targetPlayer.Name)
-        end
+for _, targetPlayer in ipairs(Players:GetPlayers()) do
+    if targetPlayer ~= player then
+        giftPlayerDropdown:Add(targetPlayer.Name)
     end
 end
 
-refreshPlayerDropdown()
+Players.PlayerAdded:Connect(
+    function(newPlayer)
+        if newPlayer ~= player then
+            giftPlayerDropdown:Add(newPlayer.Name)
+        end
+    end
+)
 
-Players.PlayerAdded:Connect(refreshPlayerDropdown)
-Players.PlayerRemoving:Connect(refreshPlayerDropdown)
-
--- TextBox para cantidad de huevos
 giftFolder:AddTextBox(
     "Egg Amount",
     function(text)
@@ -691,27 +684,22 @@ giftFolder:AddTextBox(
     end
 )
 
--- Botón para regalar huevos
 giftFolder:AddButton(
     "Gift Eggs",
     function()
-        if selectedGiftPlayer and eggGiftCount > 0 then
+        if selectedGiftPlayer and eggGiftCount and eggGiftCount > 0 then
             for i = 1, eggGiftCount do
                 local args = {
                     [1] = "giftRequest",
                     [2] = selectedGiftPlayer,
-                    [3] = LocalPlayer.consumablesFolder:FindFirstChild("Protein Egg")
+                    [3] = player.consumablesFolder:FindFirstChild("Protein Egg")
                 }
                 ReplicatedStorage.rEvents.giftRemote:InvokeServer(unpack(args))
-                task.wait(0.05) -- pequeña pausa para evitar spam extremo
             end
-        else
-            warn("[AutoGifter] Selecciona un jugador y pon cantidad > 0")
         end
     end
 )
 
--- TextBox para cantidad de batidos
 giftFolder:AddTextBox(
     "Shake Amount",
     function(text)
@@ -719,25 +707,22 @@ giftFolder:AddTextBox(
     end
 )
 
--- Botón para regalar batidos
 giftFolder:AddButton(
     "Gift Shakes",
     function()
-        if selectedGiftPlayer and shakeGiftCount > 0 then
+        if selectedGiftPlayer and shakeGiftCount and shakeGiftCount > 0 then
             for i = 1, shakeGiftCount do
                 local args = {
                     [1] = "giftRequest",
                     [2] = selectedGiftPlayer,
-                    [3] = LocalPlayer.consumablesFolder:FindFirstChild("Tropical Shake")
+                    [3] = player.consumablesFolder:FindFirstChild("Tropical Shake")
                 }
                 ReplicatedStorage.rEvents.giftRemote:InvokeServer(unpack(args))
-                task.wait(0.05)
             end
-        else
-            warn("[AutoGifter] Selecciona un jugador y pon cantidad > 0")
         end
     end
 )
+
 
 
 local Killer = window:AddTab("Kills")
