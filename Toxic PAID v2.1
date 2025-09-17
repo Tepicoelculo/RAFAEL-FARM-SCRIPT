@@ -406,6 +406,26 @@ AutoFarm:AddSwitch("Anti AFK", function(state)
     end
 end)
 
+-- ✅ Switch para girar la ruleta automáticamente
+AutoFarm:AddSwitch("Auto Ruleta", function(state)
+    _G.AutoSpinWheel = state
+
+    if state then
+        spawn(function()
+            while _G.AutoSpinWheel do
+                pcall(function()
+                    game:GetService("ReplicatedStorage").rEvents.openFortuneWheelRemote:InvokeServer(
+                        "openFortuneWheel",
+                        game:GetService("ReplicatedStorage").fortuneWheelChances["Fortune Wheel"]
+                    )
+                end)
+                task.wait(1.5) -- ⏳ Espera entre giros (seguro para no saturar el servidor)
+            end
+        end)
+    end
+end)
+
+
 -- 📊 NUEVA PESTAÑA: CALCULAR STATS
 local features = window:AddTab("Calculadora Stats")
 features:Show()
