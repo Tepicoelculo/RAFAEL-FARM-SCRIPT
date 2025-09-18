@@ -200,6 +200,78 @@ AutoFarm:AddSwitch("Eat Egg (30 Min)", function(state)
     end
 end)
 
+-- FAST REBIRTHS
+AutoFarm:AddSwitch("Fast Rebirths", function(state)
+    getgenv().AutoFarming = state
+    if state then
+        task.spawn(function()
+            local a = ReplicatedStorage
+            local c = LocalPlayer
+            local function equipPetByName(name)
+                local folderPets = c:FindFirstChild("petsFolder")
+                if not folderPets then return end
+                for _, folder in pairs(folderPets:GetChildren()) do
+                    if folder:IsA("Folder") then
+                        for _, pet in pairs(folder:GetChildren()) do
+                            if pet.Name == name then
+                                a.rEvents.equipPetEvent:FireServer("equipPet", pet)
+                            end
+                        end
+                    end
+                end
+            end
+            local function unequipAllPets()
+                local f = c:FindFirstChild("petsFolder")
+                if not f then return end
+                for _, folder in pairs(f:GetChildren()) do
+                    if folder:IsA("Folder") then
+                        for _, pet in pairs(folder:GetChildren()) do
+                            a.rEvents.equipPetEvent:FireServer("unequipPet", pet)
+                        end
+                    end
+                end
+                task.wait(0.1)
+            end
+            local function getGoldenRebirthCount()
+                local g = c:FindFirstChild("ultimatesFolder")
+                if g and g:FindFirstChild("Golden Rebirth") then
+                    return g["Golden Rebirth"].Value
+                end
+                return 0
+            end
+            local function getStrengthRequiredForRebirth()
+                local rebirths = c.leaderstats.Rebirths.Value
+                local baseStrength = 10000 + (5000 * rebirths)
+                local golden = getGoldenRebirthCount()
+                if golden >= 1 and golden <= 5 then
+                    baseStrength = baseStrength * (1 - golden * 0.1)
+                end
+                return math.floor(baseStrength)
+            end
+            while getgenv().AutoFarming do
+                local requiredStrength = getStrengthRequiredForRebirth()
+                unequipAllPets()
+                equipPetByName("Swift Samurai")
+                while c.leaderstats.Strength.Value < requiredStrength and getgenv().AutoFarming do
+                    for _ = 1, 10 do
+                        c.muscleEvent:FireServer("rep")
+                    end
+                    task.wait()
+                end
+                if getgenv().AutoFarming then
+                    unequipAllPets()
+                    equipPetByName("Tribal Overlord")
+                    local oldRebirths = c.leaderstats.Rebirths.Value
+                    repeat
+                        a.rEvents.rebirthRemote:InvokeServer("rebirthRequest")
+                        task.wait(0.1)
+                    until c.leaderstats.Rebirths.Value > oldRebirths or not getgenv().AutoFarming
+                end
+                task.wait()
+            end
+        end)
+    end
+end)
 
 -- AUTO JUNGLE SQUAT
 local jungleSquatToggle = false
@@ -267,7 +339,7 @@ AutoFarm:AddSwitch("Lock Position", function(Value)
 end)
 
 -- ANTI LAG
-AutoFarm:AddSwitch("Hide Frame (Fuerza)", function(State)
+AutoFarm:AddSwitch("Anti Lag", function(State)
     local lighting = game:GetService("Lighting")
     if State then
         for _, gui in pairs(LocalPlayer.PlayerGui:GetChildren()) do
@@ -352,177 +424,6 @@ AutoFarm:AddSwitch("Auto Ruleta", function(state)
         end)
     end
 end)
-
----FAST REBIRTHS
-AutoFarm:AddSwitch("Fast Rebirths", function(state)
-    getgenv().AutoFarming = state
-    if state then
-        task.spawn(function()
-            local a = ReplicatedStorage
-            local c = LocalPlayer
-            local function equipPetByName(name)
-                local folderPets = c:FindFirstChild("petsFolder")
-                if not folderPets then return end
-                for _, folder in pairs(folderPets:GetChildren()) do
-                    if folder:IsA("Folder") then
-                        for _, pet in pairs(folder:GetChildren()) do
-                            if pet.Name == name then
-                                a.rEvents.equipPetEvent:FireServer("equipPet", pet)
-                            end
-                        end
-                    end
-                end
-            end
-            local function unequipAllPets()
-                local f = c:FindFirstChild("petsFolder")
-                if not f then return end
-                for _, folder in pairs(f:GetChildren()) do
-                    if folder:IsA("Folder") then
-                        for _, pet in pairs(folder:GetChildren()) do
-                            a.rEvents.equipPetEvent:FireServer("unequipPet", pet)
-                        end
-                    end
-                end
-                task.wait(0.1)
-            end
-            local function getGoldenRebirthCount()
-                local g = c:FindFirstChild("ultimatesFolder")
-                if g and g:FindFirstChild("Golden Rebirth") then
-                    return g["Golden Rebirth"].Value
-                end
-                return 0
-            end
-            local function getStrengthRequiredForRebirth()
-                local rebirths = c.leaderstats.Rebirths.Value
-                local baseStrength = 10000 + (5000 * rebirths)
-                local golden = getGoldenRebirthCount()
-                if golden >= 1 and golden <= 5 then
-                    baseStrength = baseStrength * (1 - golden * 0.1)
-                end
-                return math.floor(baseStrength)
-            end
-            while getgenv().AutoFarming do
-                local requiredStrength = getStrengthRequiredForRebirth()
-                unequipAllPets()
-                equipPetByName("Swift Samurai")
-                while c.leaderstats.Strength.Value < requiredStrength and getgenv().AutoFarming do
-                    for _ = 1, 10 do
-                        c.muscleEvent:FireServer("rep")
-                    end
-                    task.wait()
-                end
-                if getgenv().AutoFarming then
-                    unequipAllPets()
-                    equipPetByName("Tribal Overlord")
-                    local oldRebirths = c.leaderstats.Rebirths.Value
-                    repeat
-                        a.rEvents.rebirthRemote:InvokeServer("rebirthRequest")
-                        task.wait(0.1)
-                    until c.leaderstats.Rebirths.Value > oldRebirths or not getgenv().AutoFarming
-                end
-                task.wait()
-            end
-        end)
-    end
-end)
-
-Hide Frame
-AutoFarm:AddSwitch("Hide Frame (Rebirth)", function(state)
-
-loadstring([[
-local p = game.Players.LocalPlayer
-
--- Clases y nombres de efectos a controlar
-local EFFECT_CLASSES = {
-    "ParticleEmitter"
-}
-local EFFECT_KEYS = {
-    "Effect",
-}
-
--- Nombres de efectos de mascota que NO tocamos
-local PET_EFFECTS = { "PetStat","PetAura","PetGlow" }
-
--- Helper: true si el nombre corresponde a un efecto de mascota
-local function isPetEffect(name)
-    for _, pet in ipairs(PET_EFFECTS) do
-        if name:lower():find(pet:lower()) then
-            return true
-        end
-    end
-    return false
-end
-
--- Helper: true si el objeto es uno de los efectos que queremos manejar
-local function isOurEffect(v)
-    for _, cls in ipairs(EFFECT_CLASSES) do
-        if v:IsA(cls) then return true end
-    end
-    for _, key in ipairs(EFFECT_KEYS) do
-        if v.Name:lower():find(key:lower()) then return true end
-    end
-    return false
-end
-
--- Almacenamos aquí los efectos cuando los ocultamos: [obj] = originalParent
-_G.StoredEffects = _G.StoredEffects or {}
-
--- Oculta todos los efectos actuales
-local function hideAll()
-    for _, v in ipairs(game:GetDescendants()) do
-        if isOurEffect(v) and not isPetEffect(v.Name) and not _G.StoredEffects[v] then
-            pcall(function()
-                _G.StoredEffects[v] = v.Parent
-                v.Parent = nil
-            end)
-        end
-    end
-end
-
--- Restaura todos los efectos que tenemos guardados
-local function showAll()
-    for v, originalParent in pairs(_G.StoredEffects) do
-        pcall(function()
-            if v and originalParent then
-                v.Parent = originalParent
-            end
-        end)
-    end
-    _G.StoredEffects = {}
-end
-
--- Configuramos eventos sólo la primera vez
-if not _G.ToggleInit then
-    -- Al reaparecer el personaje, reaplicamos el modo actual
-    p.CharacterAdded:Connect(function()
-        wait(1)
-        if _G.EffectsHidden then hideAll() else showAll() end
-    end)
-    -- Si se generan efectos nuevos mientras estamos en “ocultar”
-    game.DescendantAdded:Connect(function(o)
-        if _G.EffectsHidden and isOurEffect(o) and not isPetEffect(o.Name) then
-            wait(0.1)
-            pcall(function()
-                if not _G.StoredEffects[o] then
-                    _G.StoredEffects[o] = o.Parent
-                    o.Parent = nil
-                end
-            end)
-        end
-    end)
-    _G.ToggleInit = true
-end
-
--- Alternamos la bandera y ejecutamos
-_G.EffectsHidden = not _G.EffectsHidden
-if _G.EffectsHidden then
-    hideAll()
-    warn("▶ Efectos ocultos")
-else
-    showAll()
-    warn("▶ Efectos restaurados")
-end
-]])()
 
 
 -- 📊 NUEVA PESTAÑA: CALCULAR STATS
@@ -3244,14 +3145,13 @@ end)
 
 -- NUEVA PESTAÑA PARA GIFTS
 local GiftTab = window:AddTab("Auto Gifter")
-local giftFolder = GiftTab:AddFolder("Gift System")
 
 local selectedGiftPlayer = nil
 local eggGiftCount = 0
 local shakeGiftCount = 0
 
 local giftPlayerDropdown =
-    giftFolder:AddDropdown(
+    GiftTab:AddDropdown(
     "Choose Player",
     function(name)
         selectedGiftPlayer = Players:FindFirstChild(name)
@@ -3272,14 +3172,14 @@ Players.PlayerAdded:Connect(
     end
 )
 
-giftFolder:AddTextBox(
+GiftTab:AddTextBox(
     "Egg Amount",
     function(text)
         eggGiftCount = tonumber(text) or 0
     end
 )
 
-giftFolder:AddButton(
+GiftTab:AddButton(
     "Gift Eggs",
     function()
         if selectedGiftPlayer and eggGiftCount and eggGiftCount > 0 then
@@ -3295,14 +3195,14 @@ giftFolder:AddButton(
     end
 )
 
-giftFolder:AddTextBox(
+GiftTab:AddTextBox(
     "Shake Amount",
     function(text)
         shakeGiftCount = tonumber(text) or 0
     end
 )
 
-giftFolder:AddButton(
+GiftTab:AddButton(
     "Gift Shakes",
     function()
         if selectedGiftPlayer and shakeGiftCount and shakeGiftCount > 0 then
@@ -3317,3 +3217,47 @@ giftFolder:AddButton(
         end
     end
 )
+
+-- ===========================
+-- CONTADOR DE ITEMS EN TIEMPO REAL
+-- ===========================
+local proteinEggLabel = GiftTab:AddLabel("Protein Eggs: 0")
+proteinEggLabel.TextSize = 20
+
+local tropicalShakeLabel = GiftTab:AddLabel("Tropical Shakes: 0")
+tropicalShakeLabel.TextSize = 18
+
+local function updateItemCount()
+    local proteinEggCount = 0
+    local tropicalShakeCount = 0
+
+    local backpack = player:WaitForChild("Backpack")
+    if backpack then
+        for _, item in ipairs(backpack:GetChildren()) do
+            if item.Name == "Protein Egg" then
+                proteinEggCount = proteinEggCount + 1
+            elseif item.Name == "Tropical Shake" then
+                tropicalShakeCount = tropicalShakeCount + 1
+            end
+        end
+    end
+
+    proteinEggLabel.Text = "Protein Eggs: " .. proteinEggCount
+    tropicalShakeLabel.Text = "Tropical Shakes: " .. tropicalShakeCount
+end
+
+task.spawn(function()
+    while true do
+        updateItemCount()
+        task.wait(0.25)
+    end
+end)
+
+
+local Credits = window:AddTab("Credits")
+
+Credits:AddLabel("Toxic Paid V2")
+Credits:AddLabel("Script Hecho por:")
+Credits:AddLabel("Rafael25IC and DeathKiller")
+Credits:AddLabel("TikTok: DeathKiller")
+
