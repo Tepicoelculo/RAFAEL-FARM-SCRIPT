@@ -3255,22 +3255,23 @@ end)
 
 
 
-local Rock = window:AddTab("Rock")
+-- ⚡ SWITCHES DE ROCKS LISTOS
 
 -- Función para equipar Punch y hacer punch
 local function gettool()
-    for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-        if v.Name == "Punch" and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-            game.Players.LocalPlayer.Character.Humanoid:EquipTool(v)
+    local LocalPlayer = game.Players.LocalPlayer
+    for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
+        if v.Name == "Punch" and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            LocalPlayer.Character.Humanoid:EquipTool(v)
         end
     end
-    game.Players.LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-    game.Players.LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
 end
 
--- Función para crear switches de farmeo de rocks directamente en el tab
-local function createRockSwitch(name, selectRockName, durabilityRequirement)
-    RockTab:AddSwitch(name, function(Value)
+-- Función para crear un switch de roca
+local function createRockSwitch(tab, name, durabilityRequirement)
+    tab:AddSwitch(name, function(Value)
         getgenv().autoFarm = Value
         
         if Value then
@@ -3304,24 +3305,28 @@ local function createRockSwitch(name, selectRockName, durabilityRequirement)
     end)
 end
 
--- Datos de los rocks
+-- Lista de todas las rocas
 local rocks = {
-    {"Tiny Rock", "Tiny Island Rock", 0},
-    {"Starter Rock", "Starter Island Rock", 100},
-    {"Legend Beach Rock", "Legend Beach Rock", 5000},
-    {"Frozen Rock", "Frost Gym Rock", 150000},
-    {"Mythical Rock", "Mythical Gym Rock", 400000},
-    {"Eternal Rock", "Eternal Gym Rock", 750000},
-    {"Legend Rock", "Legend Gym Rock", 1000000},
-    {"Muscle King Rock", "Muscle King Gym Rock", 5000000},
-    {"Jungle Rock", "Ancient Jungle Rock", 10000000}
+    {"Tiny Rock", 0},
+    {"Starter Rock", 100},
+    {"Legend Beach Rock", 5000},
+    {"Frozen Rock", 150000},
+    {"Mythical Rock", 400000},
+    {"Eternal Rock", 750000},
+    {"Legend Rock", 1000000},
+    {"Muscle King Rock", 5000000},
+    {"Jungle Rock", 10000000}
 }
 
--- Crear switches automáticamente en el tab
+-- Crear todos los switches en tu tab existente
 for _, rockData in pairs(rocks) do
-    createRockSwitch(rockData[1], rockData[2], rockData[3])
+    createRockSwitch(RockTab, rockData[1], rockData[2])
 end
 
+
+-- 📌 Ventana y Tab para Farm Normal (sin librería)
+-- Si ya tienes tu GUI, reemplaza 'window' por tu ventana existente
+-- local window = MiGUI:AddWindow("Farm Normal") 
 
 local FarmNormal = window:AddTab("Farm Normal")
 
@@ -3463,7 +3468,7 @@ local function eatProteinEgg()
 
     local egg = backpack:FindFirstChild("Protein Egg")
     if egg then
-        egg.Parent = character -- equipa el huevo
+        egg.Parent = character
         pcall(function()
             egg:Activate()
         end)
@@ -3477,7 +3482,7 @@ task.spawn(function()
     while true do
         if autoEatEnabled then
             eatProteinEgg()
-            task.wait(1800) -- espera 30 minutos
+            task.wait(1800)
         else
             task.wait(1)
         end
@@ -3486,11 +3491,5 @@ end)
 
 FarmNormal:AddSwitch("Eat Egg (30 Min)", function(state)
     autoEatEnabled = state
-    if state then
-        print("[AutoEgg] Activado.")
-    else
-        print("[AutoEgg] Desactivado.")
-    end
+    print("[AutoEgg]", state and "Activado" or "Desactivado")
 end)
-
-
