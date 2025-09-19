@@ -3254,81 +3254,11 @@ task.spawn(function()
 end)
 
 
+-- 📌 Ventana y Tab para Farm Normal
+local FarmNormalWindow = {} -- Reemplaza con tu ventana si ya existe
+FarmNormalWindow.Name = "Farm Normal Window"
 
--- ⚡ SWITCHES DE ROCKS LISTOS
-
--- Función para equipar Punch y hacer punch
-local function gettool()
-    local LocalPlayer = game.Players.LocalPlayer
-    for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
-        if v.Name == "Punch" and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            LocalPlayer.Character.Humanoid:EquipTool(v)
-        end
-    end
-    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-end
-
--- Función para crear un switch de roca
-local function createRockSwitch(tab, name, durabilityRequirement)
-    tab:AddSwitch(name, function(Value)
-        getgenv().autoFarm = Value
-        
-        if Value then
-            task.spawn(function()
-                while getgenv().autoFarm do
-                    if not getgenv().autoFarm then break end
-                    
-                    pcall(function()
-                        local LocalPlayer = game.Players.LocalPlayer
-                        if LocalPlayer.Durability.Value >= durabilityRequirement then
-                            local character = LocalPlayer.Character
-                            if character and character:FindFirstChild("LeftHand") and character:FindFirstChild("RightHand") then
-                                for i, v in pairs(game.Workspace.machinesFolder:GetDescendants()) do
-                                    if v.Name == "neededDurability" and v.Value == durabilityRequirement then
-                                        local rock = v.Parent.Rock
-                                        firetouchinterest(rock, character.RightHand, 0)
-                                        firetouchinterest(rock, character.RightHand, 1)
-                                        firetouchinterest(rock, character.LeftHand, 0)
-                                        firetouchinterest(rock, character.LeftHand, 1)
-                                        gettool()
-                                        break
-                                    end
-                                end
-                            end
-                        end
-                    end)
-                    task.wait(0.1)
-                end
-            end)
-        end
-    end)
-end
-
--- Lista de todas las rocas
-local rocks = {
-    {"Tiny Rock", 0},
-    {"Starter Rock", 100},
-    {"Legend Beach Rock", 5000},
-    {"Frozen Rock", 150000},
-    {"Mythical Rock", 400000},
-    {"Eternal Rock", 750000},
-    {"Legend Rock", 1000000},
-    {"Muscle King Rock", 5000000},
-    {"Jungle Rock", 10000000}
-}
-
--- Crear todos los switches en tu tab existente
-for _, rockData in pairs(rocks) do
-    createRockSwitch(RockTab, rockData[1], rockData[2])
-end
-
-
--- 📌 Ventana y Tab para Farm Normal (sin librería)
--- Si ya tienes tu GUI, reemplaza 'window' por tu ventana existente
--- local window = MiGUI:AddWindow("Farm Normal") 
-
-local FarmNormal = window:AddTab("Farm Normal")
+local FarmNormal = FarmNormalWindow:AddTab("Farm Normal") -- Crea el tab
 
 -- ✅ Auto Rebirth (Normal)
 local autoRebirth = false
@@ -3493,3 +3423,78 @@ FarmNormal:AddSwitch("Eat Egg (30 Min)", function(state)
     autoEatEnabled = state
     print("[AutoEgg]", state and "Activado" or "Desactivado")
 end)
+
+
+-- 📌 Ventana y Tab para Rock
+local RockWindow = {} -- Reemplaza con tu ventana existente si ya la tienes
+RockWindow.Name = "Rock Window"
+
+local RockTab = RockWindow:AddTab("Rock") -- Crea el tab
+
+-- ⚡ SWITCHES DE ROCKS
+
+-- Función para equipar Punch y hacer punch
+local function gettool()
+    local LocalPlayer = game.Players.LocalPlayer
+    for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
+        if v.Name == "Punch" and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            LocalPlayer.Character.Humanoid:EquipTool(v)
+        end
+    end
+    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+end
+
+-- Función para crear un switch de roca
+local function createRockSwitch(tab, name, durabilityRequirement)
+    tab:AddSwitch(name, function(Value)
+        getgenv().autoFarm = Value
+        
+        if Value then
+            task.spawn(function()
+                while getgenv().autoFarm do
+                    if not getgenv().autoFarm then break end
+                    
+                    pcall(function()
+                        local LocalPlayer = game.Players.LocalPlayer
+                        if LocalPlayer.Durability.Value >= durabilityRequirement then
+                            local character = LocalPlayer.Character
+                            if character and character:FindFirstChild("LeftHand") and character:FindFirstChild("RightHand") then
+                                for i, v in pairs(game.Workspace.machinesFolder:GetDescendants()) do
+                                    if v.Name == "neededDurability" and v.Value == durabilityRequirement then
+                                        local rock = v.Parent.Rock
+                                        firetouchinterest(rock, character.RightHand, 0)
+                                        firetouchinterest(rock, character.RightHand, 1)
+                                        firetouchinterest(rock, character.LeftHand, 0)
+                                        firetouchinterest(rock, character.LeftHand, 1)
+                                        gettool()
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                    end)
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end)
+end
+
+-- Lista de todas las rocas
+local rocks = {
+    {"Tiny Rock", 0},
+    {"Starter Rock", 100},
+    {"Legend Beach Rock", 5000},
+    {"Frozen Rock", 150000},
+    {"Mythical Rock", 400000},
+    {"Eternal Rock", 750000},
+    {"Legend Rock", 1000000},
+    {"Muscle King Rock", 5000000},
+    {"Jungle Rock", 10000000}
+}
+
+-- Crear switches en tu tab de rocks
+for _, rockData in pairs(rocks) do
+    createRockSwitch(RockTab, rockData[1], rockData[2])
+end
