@@ -3253,8 +3253,8 @@ task.spawn(function()
     end
 end)
 
--- 📌 Crear Ventana y Tab para Rock
-local rockWindow = library:AddWindow("Rock")
+
+
 local RockTab = rockWindow:AddTab("Rock")
 
 -- Función para equipar Punch y hacer punch
@@ -3323,9 +3323,7 @@ for _, rockData in pairs(rocks) do
 end
 
 
--- 📌 Crear Ventana y Tab para Farm Normal
-local window = library:AddWindow("Farm Normal")
-local FarmNormal = window:AddTab("Farm Normal")
+window:AddTab("Farm Normal")
 
 -- ✅ Auto Rebirth (Normal)
 local autoRebirth = false
