@@ -3293,7 +3293,7 @@ Killer:AddButton("Size NaN", function()
     game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("changeSpeedSizeRemote"):InvokeServer(unpack(args))
 end)
 Killer:AddButton("activate dead hit", function()
-    loadstring(game:HttpGet("https://pastebin.com/raw/AxVHmk1i"))()
+    loadstring(game:HttpGet("https://pastebin.com/raw/DsQKiTnC"))()
 end)
 
 
@@ -4498,6 +4498,6 @@ end)
 local Credits = window:AddTab("Credits")
 
 Credits:AddLabel("Toxic Paid V3")
-Credits:AddLabel("Script Hecho por username:")
-Credits:AddLabel("Demon_misteriousX clown | ZTX ON TOP")
-Credits:AddLabel("I hope you like the script, for bugs or suggestions on my discord server")
+Credits:AddLabel("Script Hecho por :")
+Credits:AddLabel("Rafael25IC")
+Credits:AddLabel("TikTok: DeathKiller")
