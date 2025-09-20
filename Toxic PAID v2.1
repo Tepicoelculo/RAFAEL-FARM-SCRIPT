@@ -3253,288 +3253,121 @@ task.spawn(function()
     end
 end)
 
+-- 📌 CREAR PESTAÑA ROCK
+local RockTab = window:AddTab("Rock Farm")
 
--- Create the Misc tab
-local miscTab = window:AddTab("Misc")
+-- ⚡ SWITCHES DE ROCKS LISTOS
 
--- Create the first folder
-local misc1Folder = miscTab:AddFolder("Misc 1")
-
--- Add ad removal button to Misc 1
-misc1Folder:AddButton("Remove Portals", function()
-    -- Remove existing ad portals
-    for _, portal in pairs(game:GetDescendants()) do
-        if portal.Name == "RobloxForwardPortals" then
-            portal:Destroy()
+-- Función para equipar Punch y hacer punch
+local function gettool()
+    local LocalPlayer = game.Players.LocalPlayer
+    for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
+        if v.Name == "Punch" and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            LocalPlayer.Character.Humanoid:EquipTool(v)
         end
     end
-    
-    -- Set up connection to remove future ad portals
-    if _G.AdRemovalConnection then
-        _G.AdRemovalConnection:Disconnect()
-    end
-    
-    _G.AdRemovalConnection = game.DescendantAdded:Connect(function(descendant)
-        if descendant.Name == "RobloxForwardPortals" then
-            descendant:Destroy()
+    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+end
+
+-- Función para crear un switch de roca
+local function createRockSwitch(tab, name, durabilityRequirement)
+    tab:AddSwitch(name, function(Value)
+        getgenv().autoFarm = Value
+        
+        if Value then
+            task.spawn(function()
+                while getgenv().autoFarm do
+                    if not getgenv().autoFarm then break end
+                    
+                    pcall(function()
+                        local LocalPlayer = game.Players.LocalPlayer
+                        if LocalPlayer.Durability.Value >= durabilityRequirement then
+                            local character = LocalPlayer.Character
+                            if character and character:FindFirstChild("LeftHand") and character:FindFirstChild("RightHand") then
+                                for i, v in pairs(game.Workspace.machinesFolder:GetDescendants()) do
+                                    if v.Name == "neededDurability" and v.Value == durabilityRequirement then
+                                        local rock = v.Parent.Rock
+                                        firetouchinterest(rock, character.RightHand, 0)
+                                        firetouchinterest(rock, character.RightHand, 1)
+                                        firetouchinterest(rock, character.LeftHand, 0)
+                                        firetouchinterest(rock, character.LeftHand, 1)
+                                        gettool()
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                    end)
+                    task.wait(0.1)
+                end
+            end)
         end
     end)
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Anuncios Eliminados",
-        Text = "Los anuncios de Roblox han sido eliminados",
-        Duration = 0
-    })
-end)
-
--- Walk on Water feature
-local parts = {}
-local partSize = 2048
-local totalDistance = 50000
-local startPosition = Vector3.new(-2, -9.5, -2)
-local numberOfParts = math.ceil(totalDistance / partSize)
-
-local function createParts()
-    for x = 0, numberOfParts - 1 do
-        for z = 0, numberOfParts - 1 do
-            local newPartSide = Instance.new("Part")
-            newPartSide.Size = Vector3.new(partSize, 1, partSize)
-            newPartSide.Position = startPosition + Vector3.new(x * partSize, 0, z * partSize)
-            newPartSide.Anchored = true
-            newPartSide.Transparency = 1
-            newPartSide.CanCollide = true
-            newPartSide.Name = "Part_Side_" .. x .. "_" .. z
-            newPartSide.Parent = workspace
-            table.insert(parts, newPartSide)
-            
-            local newPartLeftRight = Instance.new("Part")
-            newPartLeftRight.Size = Vector3.new(partSize, 1, partSize)
-            newPartLeftRight.Position = startPosition + Vector3.new(-x * partSize, 0, z * partSize)
-            newPartLeftRight.Anchored = true
-            newPartLeftRight.Transparency = 1
-            newPartLeftRight.CanCollide = true
-            newPartLeftRight.Name = "Part_LeftRight_" .. x .. "_" .. z
-            newPartLeftRight.Parent = workspace
-            table.insert(parts, newPartLeftRight)
-            
-            local newPartUpLeft = Instance.new("Part")
-            newPartUpLeft.Size = Vector3.new(partSize, 1, partSize)
-            newPartUpLeft.Position = startPosition + Vector3.new(-x * partSize, 0, -z * partSize)
-            newPartUpLeft.Anchored = true
-            newPartUpLeft.Transparency = 1
-            newPartUpLeft.CanCollide = true
-            newPartUpLeft.Name = "Part_UpLeft_" .. x .. "_" .. z
-            newPartUpLeft.Parent = workspace
-            table.insert(parts, newPartUpLeft)
-            
-            local newPartUpRight = Instance.new("Part")
-            newPartUpRight.Size = Vector3.new(partSize, 1, partSize)
-            newPartUpRight.Position = startPosition + Vector3.new(x * partSize, 0, -z * partSize)
-            newPartUpRight.Anchored = true
-            newPartUpRight.Transparency = 1
-            newPartUpRight.CanCollide = true
-            newPartUpRight.Name = "Part_UpRight_" .. x .. "_" .. z
-            newPartUpRight.Parent = workspace
-            table.insert(parts, newPartUpRight)
-        end
-    end
 end
 
-local function makePartsWalkthrough()
-    for _, part in ipairs(parts) do
-        if part and part.Parent then
-            part.CanCollide = false
-        end
-    end
+-- Lista de todas las rocas
+local rocks = {
+    {"Tiny Rock", 0},
+    {"Starter Rock", 100},
+    {"Legend Beach Rock", 5000},
+    {"Frozen Rock", 150000},
+    {"Mythical Rock", 400000},
+    {"Eternal Rock", 750000},
+    {"Legend Rock", 1000000},
+    {"Muscle King Rock", 5000000},
+    {"Jungle Rock", 10000000}
+}
+
+-- Crear todos los switches en la pestaña Rock
+for _, rockData in pairs(rocks) do
+    createRockSwitch(RockTab, rockData[1], rockData[2])
 end
 
-local function makePartsSolid()
-    for _, part in ipairs(parts) do
-        if part and part.Parent then
-            part.CanCollide = true
-        end
-    end
-end
 
--- Add Walk on Water toggle
-misc1Folder:AddSwitch("Walk on Water", function(bool)
-    if bool then
-        createParts()
-    else
-        makePartsWalkthrough()
+-- 📌 PESTAÑA FARM NORMAL
+local FarmNormal = window:AddTab("Farm Normal")
+
+-- ✅ Auto Rebirth (Normal)
+local autoRebirth = false
+FarmNormal:AddSwitch("Auto Rebirth (Normal)", function(state)
+    autoRebirth = state
+    while autoRebirth do
+        game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("rebirthRemote"):InvokeServer("rebirthRequest")
+        task.wait(0.1)
     end
 end)
 
--- Add Auto Spin Wheel toggle
-misc1Folder:AddSwitch("Auto Spin Wheel", function(bool)
-    _G.AutoSpinWheel = bool
-    
-    if bool then
-        spawn(function()
-            while _G.AutoSpinWheel and wait(1) do
-                game:GetService("ReplicatedStorage").rEvents.openFortuneWheelRemote:InvokeServer("openFortuneWheel", game:GetService("ReplicatedStorage").fortuneWheelChances["Fortune Wheel"])
-            end
-        end)
-    end
-end)
-
--- Add Auto Claim Gifts toggle
-misc1Folder:AddSwitch("Auto Claim Gifts", function(bool)
-    _G.AutoClaimGifts = bool
-    
-    if bool then
-        spawn(function()
-            while _G.AutoClaimGifts and wait(1) do
-                for i = 1, 8 do
-                    game:GetService("ReplicatedStorage").rEvents.freeGiftClaimRemote:InvokeServer("claimGift", i)
-                end
-            end
-        end)
-    end
-end)
-
--- Create the second folder
-
-
-local misc2Folder = miscTab:AddFolder("Misc 2")
-
--- Fast Punch toggle with auto-punch functionality and persistent equipping
-misc2Folder:AddSwitch("Auto Punch", function(bool)
-    _G.FastPunch = bool
-    
-    if bool then
-        -- Function to continuously equip and modify punch
-        spawn(function()
-            while _G.FastPunch do
-                local player = game.Players.LocalPlayer
-                local character = player.Character
-                
-                -- Check if tool is not equipped
-                if character and not character:FindFirstChild("Punch") then
-                    local punch = player.Backpack:FindFirstChild("Punch")
-                    if punch then
-                        if punch:FindFirstChild("attackTime") then
-                            punch.attackTime.Value = 0
-                        end
-                        character.Humanoid:EquipTool(punch)
-                    end
-                elseif character and character:FindFirstChild("Punch") then
-                    -- Make sure equipped tool is modified
-                    local equipped = character:FindFirstChild("Punch")
-                    if equipped:FindFirstChild("attackTime") then
-                        equipped.attackTime.Value = 0
-                    end
-                end
-                
-                wait(0.1)
-            end
-        end)
-        
-        -- Function to rapidly punch
-        spawn(function()
-            while _G.FastPunch do
-                local player = game.Players.LocalPlayer
-                player.muscleEvent:FireServer("punch", "rightHand")
-                player.muscleEvent:FireServer("punch", "leftHand")
-                local character = player.Character
-                if character then
-                    local punchTool = character:FindFirstChild("Punch")
-                    if punchTool then
-                        punchTool:Activate()
-                    end
-                end
-                wait(0)
+-- ✅ Auto Size 2
+local autoSizeLoop = nil
+FarmNormal:AddSwitch("Auto Size 2", function(state)
+    if state then
+        autoSizeLoop = task.spawn(function()
+            while task.wait(0) do
+                game:GetService("ReplicatedStorage").rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", 2)
             end
         end)
     else
-        -- Unequip and reset tool
-        local character = game.Players.LocalPlayer.Character
-        local equipped = character:FindFirstChild("Punch")
-        if equipped then
-            if equipped:FindFirstChild("attackTime") then
-                equipped.attackTime.Value = 0.35
-            end
-            equipped.Parent = game.Players.LocalPlayer.Backpack
-        end
-        
-        -- Also reset the backpack tool
-        local backpackTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Punch")
-        if backpackTool and backpackTool:FindFirstChild("attackTime") then
-            backpackTool.attackTime.Value = 0.35
+        if autoSizeLoop then
+            task.cancel(autoSizeLoop)
+            autoSizeLoop = nil
         end
     end
 end)
 
--- Fast Situps toggle with auto-situps functionality and persistent equipping
-misc2Folder:AddSwitch("Auto Situps", function(bool)
-    _G.FastSitups = bool
-    
-    if bool then
-        -- Continuously equip and modify situps tool
-        spawn(function()
-            while _G.FastSitups do
-                local player = game.Players.LocalPlayer
-                local character = player.Character
-                
-                -- Check if tool is not equipped
-                if character and not character:FindFirstChild("Situps") then
-                    local situpsTool = player.Backpack:FindFirstChild("Situps")
-                    if situpsTool then
-                        if situpsTool:FindFirstChild("repTime") then
-                            situpsTool.repTime.Value = 0
-                        end
-                        character.Humanoid:EquipTool(situpsTool)
-                    end
-                elseif character and character:FindFirstChild("Situps") then
-                    -- Make sure equipped tool is modified
-                    local equipped = character:FindFirstChild("Situps")
-                    if equipped:FindFirstChild("repTime") then
-                        equipped.repTime.Value = 0
-                    end
-                end
-                
-                wait(0.1)
-            end
-        end)
-        
-        -- Auto do situps
-        spawn(function()
-            while _G.FastSitups do
-                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
-                task.wait(0)
-            end
-        end)
-    else
-        -- Unequip and reset tool
-        local character = game.Players.LocalPlayer.Character
-        local equipped = character:FindFirstChild("Situps")
-        if equipped then
-            if equipped:FindFirstChild("repTime") then
-                equipped.repTime.Value = 1
-            end
-            equipped.Parent = game.Players.LocalPlayer.Backpack
-        end
-        
-        -- Also reset the backpack tool
-        local backpackTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Situps")
-        if backpackTool and backpackTool:FindFirstChild("repTime") then
-            backpackTool.repTime.Value = 1
-        end
-    end
+-- ✅ Teleport a Muscle King
+FarmNormal:AddButton("Teleport Muscle King", function()
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-8626, 15, -5730)
 end)
 
--- Fast Weight toggle with auto-weight functionality and persistent equipping
-misc2Folder:AddSwitch("Auto Weight", function(bool)
+-- ✅ Auto Weight
+FarmNormal:AddSwitch("Auto Weight", function(bool)
     _G.FastWeight = bool
-    
     if bool then
-        -- Continuously equip and modify weight tool
         spawn(function()
             while _G.FastWeight do
                 local player = game.Players.LocalPlayer
                 local character = player.Character
-                
-                -- Check if tool is not equipped
                 if character and not character:FindFirstChild("Weight") then
                     local weightTool = player.Backpack:FindFirstChild("Weight")
                     if weightTool then
@@ -3544,18 +3377,15 @@ misc2Folder:AddSwitch("Auto Weight", function(bool)
                         character.Humanoid:EquipTool(weightTool)
                     end
                 elseif character and character:FindFirstChild("Weight") then
-                    -- Make sure equipped tool is modified
                     local equipped = character:FindFirstChild("Weight")
                     if equipped:FindFirstChild("repTime") then
                         equipped.repTime.Value = 0
                     end
                 end
-                
-                wait(0.1)
+                task.wait(0.1)
             end
         end)
-        
-        -- Auto do weight lifting
+
         spawn(function()
             while _G.FastWeight do
                 game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
@@ -3563,7 +3393,6 @@ misc2Folder:AddSwitch("Auto Weight", function(bool)
             end
         end)
     else
-        -- Unequip and reset tool
         local character = game.Players.LocalPlayer.Character
         local equipped = character:FindFirstChild("Weight")
         if equipped then
@@ -3572,8 +3401,6 @@ misc2Folder:AddSwitch("Auto Weight", function(bool)
             end
             equipped.Parent = game.Players.LocalPlayer.Backpack
         end
-        
-        -- Also reset the backpack tool
         local backpackTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Weight")
         if backpackTool and backpackTool:FindFirstChild("repTime") then
             backpackTool.repTime.Value = 1
@@ -3581,18 +3408,14 @@ misc2Folder:AddSwitch("Auto Weight", function(bool)
     end
 end)
 
--- Fast Pushups toggle with auto-pushups functionality and persistent equipping
-misc2Folder:AddSwitch("Auto Pushups", function(bool)
+-- ✅ Auto Pushups
+FarmNormal:AddSwitch("Auto Pushups", function(bool)
     _G.FastPushups = bool
-    
     if bool then
-        -- Continuously equip and modify pushups tool
         spawn(function()
             while _G.FastPushups do
                 local player = game.Players.LocalPlayer
                 local character = player.Character
-                
-                -- Check if tool is not equipped
                 if character and not character:FindFirstChild("Pushups") then
                     local pushupsTool = player.Backpack:FindFirstChild("Pushups")
                     if pushupsTool then
@@ -3602,18 +3425,15 @@ misc2Folder:AddSwitch("Auto Pushups", function(bool)
                         character.Humanoid:EquipTool(pushupsTool)
                     end
                 elseif character and character:FindFirstChild("Pushups") then
-                    -- Make sure equipped tool is modified
                     local equipped = character:FindFirstChild("Pushups")
                     if equipped:FindFirstChild("repTime") then
                         equipped.repTime.Value = 0
                     end
                 end
-                
-                wait(0.1)
+                task.wait(0.1)
             end
         end)
-        
-        -- Auto do pushups
+
         spawn(function()
             while _G.FastPushups do
                 game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
@@ -3621,7 +3441,6 @@ misc2Folder:AddSwitch("Auto Pushups", function(bool)
             end
         end)
     else
-        -- Unequip and reset tool
         local character = game.Players.LocalPlayer.Character
         local equipped = character:FindFirstChild("Pushups")
         if equipped then
@@ -3630,8 +3449,6 @@ misc2Folder:AddSwitch("Auto Pushups", function(bool)
             end
             equipped.Parent = game.Players.LocalPlayer.Backpack
         end
-        
-        -- Also reset the backpack tool
         local backpackTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Pushups")
         if backpackTool and backpackTool:FindFirstChild("repTime") then
             backpackTool.repTime.Value = 1
@@ -3639,184 +3456,38 @@ misc2Folder:AddSwitch("Auto Pushups", function(bool)
     end
 end)
 
--- Fast Handstands toggle with auto-handstands functionality and persistent equipping
-misc2Folder:AddSwitch("Auto Handstands", function(bool)
-    _G.FastHandstands = bool
-    
-    if bool then
-        -- Continuously equip and modify handstands tool
-        spawn(function()
-            while _G.FastHandstands do
-                local player = game.Players.LocalPlayer
-                local character = player.Character
-                
-                -- Check if tool is not equipped
-                if character and not character:FindFirstChild("Handstands") then
-                    local handstandsTool = player.Backpack:FindFirstChild("Handstands")
-                    if handstandsTool then
-                        if handstandsTool:FindFirstChild("repTime") then
-                            handstandsTool.repTime.Value = 0
-                        end
-                        character.Humanoid:EquipTool(handstandsTool)
-                    end
-                elseif character and character:FindFirstChild("Handstands") then
-                    -- Make sure equipped tool is modified
-                    local equipped = character:FindFirstChild("Handstands")
-                    if equipped:FindFirstChild("repTime") then
-                        equipped.repTime.Value = 0
-                    end
-                end
-                
-                wait(0.1)
-            end
+-- ✅ AUTO COMER EGG (30 Min)
+local autoEatEnabled = false
+
+local function eatProteinEgg()
+    local player = game.Players.LocalPlayer
+    local backpack = player:WaitForChild("Backpack")
+    local character = player.Character or player.CharacterAdded:Wait()
+
+    local egg = backpack:FindFirstChild("Protein Egg")
+    if egg then
+        egg.Parent = character
+        pcall(function()
+            egg:Activate()
         end)
-        
-        -- Auto do handstands
-        spawn(function()
-            while _G.FastHandstands do
-                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
-                task.wait(0)
-            end
-        end)
+        print("[AutoEgg] Protein Egg consumido.")
     else
-        -- Unequip and reset tool
-        local character = game.Players.LocalPlayer.Character
-        local equipped = character:FindFirstChild("Handstands")
-        if equipped then
-            if equipped:FindFirstChild("repTime") then
-                equipped.repTime.Value = 1
-            end
-            equipped.Parent = game.Players.LocalPlayer.Backpack
-        end
-        
-        -- Also reset the backpack tool
-        local backpackTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Handstands")
-        if backpackTool and backpackTool:FindFirstChild("repTime") then
-            backpackTool.repTime.Value = 1
+        warn("[AutoEgg] No se encontró Protein Egg en Backpack.")
+    end
+end
+
+task.spawn(function()
+    while true do
+        if autoEatEnabled then
+            eatProteinEgg()
+            task.wait(1800) -- 30 min
+        else
+            task.wait(1)
         end
     end
 end)
 
--- Create the third folder
-local misc3Folder = miscTab:AddFolder("Misc 3")
-
--- Add No-Clip toggle
-misc3Folder:AddSwitch("No-Clip", function(bool)
-    _G.NoClip = bool
-    
-    if bool then
-        local noclipLoop
-        noclipLoop = game:GetService("RunService").Stepped:Connect(function()
-            if _G.NoClip then
-                for _, part in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
-                    if part:IsA("BasePart") and part.CanCollide then
-                        part.CanCollide = false
-                    end
-                end
-            else
-                noclipLoop:Disconnect()
-            end
-        end)
-        
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "No-Clip Activado",
-            Text = "Ahora puedes atravesar objetos",
-            Duration = 0
-        })
-    end
+FarmNormal:AddSwitch("Eat Egg (30 Min)", function(state)
+    autoEatEnabled = state
+    print("[AutoEgg]", state and "Activado" or "Desactivado")
 end)
-
--- Add Infinite Jump toggle
-misc3Folder:AddSwitch("Jumpy Infinite", function(bool)
-    _G.InfiniteJump = bool
-    
-    if bool then
-        local InfiniteJumpConnection
-        InfiniteJumpConnection = game:GetService("UserInputService").JumpRequest:Connect(function()
-            if _G.InfiniteJump then
-                game:GetService("Players").LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
-            else
-                InfiniteJumpConnection:Disconnect()
-            end
-        end)
-        
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "Salto Infinito Activado",
-            Text = "Ahora puedes saltar sin lÃ­mites",
-            Duration = 0
-        })
-    end
-end)
-
-local timeDropdown = misc3Folder:AddDropdown("Change Time", function(selection)
-    local lighting = game:GetService("Lighting")
-    
-    if selection == "Night" then
-        lighting.ClockTime = 0
-    elseif selection == "Day" then
-        lighting.ClockTime = 12
-    elseif selection == "Midnight" then
-        lighting.ClockTime = 6
-    end
-    
-    game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Hora Cambiada",
-        Text = "La hora del dÃ­a ha sido cambiada a: " .. selection,
-        Duration = 0
-    })
-end)
-
--- Add time options
-timeDropdown:Add("Night")
-timeDropdown:Add("Day")
-timeDropdown:Add("Midnight")
-
--- Create the Rebirth Farm folder in Spanish
-local rebirthFarmFolder = miscTab:AddFolder("Premium Farm")
-
-local function unequipAllPets()
-    local petsFolder = player.petsFolder
-    for _, folder in pairs(petsFolder:GetChildren()) do
-        if folder:IsA("Folder") then
-            for _, pet in pairs(folder:GetChildren()) do
-                ReplicatedStorage.rEvents.equipPetEvent:FireServer("unequipPet", pet)
-            end
-        end
-    end
-    task.wait(0.1)
-end
-
-local function equipUniquePet(petName)
-    unequipAllPets()
-    task.wait(0.01)
-    for _, pet in pairs(player.petsFolder.Unique:GetChildren()) do
-        if pet.Name == petName then
-            ReplicatedStorage.rEvents.equipPetEvent:FireServer("equipPet", pet)
-        end
-    end
-end
-
-local function findMachine(machineName)
-    local machine = workspace.machinesFolder:FindFirstChild(machineName)
-    if not machine then
-        for _, folder in pairs(workspace:GetChildren()) do
-            if folder:IsA("Folder") and folder.Name:find("machines") then
-                machine = folder:FindFirstChild(machineName)
-                if machine then break end
-            end
-        end
-    end
-    return machine
-end
-
-local function pressE()
-    local vim = game:GetService("VirtualInputManager")
-    vim:SendKeyEvent(true, "E", false, game)
-    task.wait(0.1)
-    vim:SendKeyEvent(false, "E", false, game)
-end
-
-local function useOneEgg()
-    ReplicatedStorage.rEvents.proteinEggEvent:FireServer("useEgg")
-end
-
