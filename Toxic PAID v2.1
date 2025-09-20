@@ -65,7 +65,7 @@ local AutoFarm = window:AddTab("Farm Op")
 getgenv()._AutoRepFarmEnabled = false  
 
 -- Switch en la librería
-AutoFarm:AddSwitch("Strength Op (Use it if your minimum ping is 250 ms)", function(state)
+AutoFarm:AddSwitch("Strength Op (Use it if your minimum ping is 350 ms)", function(state)
     getgenv()._AutoRepFarmEnabled = state
     warn("[Auto Rep Farm] Estado cambiado a:", state and "ON" or "OFF")
 end)
@@ -81,11 +81,11 @@ local PET_NAME = "Swift Samurai"
 local ROCK_NAME = "Rock5M"
 local PROTEIN_EGG_NAME = "ProteinEgg"
 local PROTEIN_EGG_INTERVAL = 30 * 60
-local REPS_PER_CYCLE = 10
+local REPS_PER_CYCLE = 12
 local REP_DELAY = 0.01
 local ROCK_INTERVAL = 5
-local MAX_PING = 450   -- si pasa esto, pausa
-local MIN_PING = 250   -- si baja de esto, reanuda
+local MAX_PING = 700   -- si pasa esto, pausa
+local MIN_PING = 350   -- si baja de esto, reanuda
 
 -- Variables internas
 local HumanoidRootPart
@@ -192,7 +192,7 @@ end)
 getgenv()._AutoRepFarmEnabled = false  
 
 -- Switch en la librería
-AutoFarm:AddSwitch("Strength Op (Use it if your minimum ping is less than 150 ms)", function(state)
+AutoFarm:AddSwitch("Strength Op (Use it if your minimum ping is less than 250 ms)", function(state)
     getgenv()._AutoRepFarmEnabled = state
     warn("[Auto Rep Farm] Estado cambiado a:", state and "ON" or "OFF")
 end)
@@ -208,11 +208,11 @@ local PET_NAME = "Swift Samurai"
 local ROCK_NAME = "Rock5M"
 local PROTEIN_EGG_NAME = "ProteinEgg"
 local PROTEIN_EGG_INTERVAL = 30 * 60
-local REPS_PER_CYCLE = 40
+local REPS_PER_CYCLE = 45
 local REP_DELAY = 0.01
 local ROCK_INTERVAL = 5
 local MAX_PING = 5000   -- si pasa esto, pausa
-local MIN_PING = 100   -- si baja de esto, reanuda
+local MIN_PING = 250   -- si baja de esto, reanuda
 
 -- Variables internas
 local HumanoidRootPart
