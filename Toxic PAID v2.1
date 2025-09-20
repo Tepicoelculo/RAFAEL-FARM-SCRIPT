@@ -46,239 +46,6 @@ local window = library:AddWindow("⚠️ Toxic PAID V2 | By Rafael ⚠️", {
     can_resize = false,
 })
 
-
--- 📌 PRIMERA PESTAÑA: FARM NORMAL
-local FarmNormal = window:AddTab("Farm Normal")
-
--- ✅ Auto Rebirth (Normal)
-local autoRebirth = false
-FarmNormal:AddSwitch("Auto Rebirth (Normal)", function(state)
-    autoRebirth = state
-    while autoRebirth do
-        game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("rebirthRemote"):InvokeServer("rebirthRequest")
-        task.wait(0.1)
-    end
-end)
-
--- ✅ Auto Size 2
-local autoSizeLoop = nil
-FarmNormal:AddSwitch("Auto Size 2", function(state)
-    if state then
-        autoSizeLoop = task.spawn(function()
-            while task.wait(0) do
-                game:GetService("ReplicatedStorage").rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", 2)
-            end
-        end)
-    else
-        if autoSizeLoop then
-            task.cancel(autoSizeLoop)
-            autoSizeLoop = nil
-        end
-    end
-end)
-
--- ✅ Teleport a Muscle King
-FarmNormal:AddButton("Teleport Muscle King", function()
-    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-8626, 15, -5730)
-end)
-
--- ✅ Auto Weight
-FarmNormal:AddSwitch("Auto Weight", function(bool)
-    _G.FastWeight = bool
-    if bool then
-        spawn(function()
-            while _G.FastWeight do
-                local player = game.Players.LocalPlayer
-                local character = player.Character
-                if character and not character:FindFirstChild("Weight") then
-                    local weightTool = player.Backpack:FindFirstChild("Weight")
-                    if weightTool then
-                        if weightTool:FindFirstChild("repTime") then
-                            weightTool.repTime.Value = 0
-                        end
-                        character.Humanoid:EquipTool(weightTool)
-                    end
-                elseif character and character:FindFirstChild("Weight") then
-                    local equipped = character:FindFirstChild("Weight")
-                    if equipped:FindFirstChild("repTime") then
-                        equipped.repTime.Value = 0
-                    end
-                end
-                task.wait(0.1)
-            end
-        end)
-
-        spawn(function()
-            while _G.FastWeight do
-                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
-                task.wait(0)
-            end
-        end)
-    else
-        local character = game.Players.LocalPlayer.Character
-        local equipped = character:FindFirstChild("Weight")
-        if equipped then
-            if equipped:FindFirstChild("repTime") then
-                equipped.repTime.Value = 1
-            end
-            equipped.Parent = game.Players.LocalPlayer.Backpack
-        end
-        local backpackTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Weight")
-        if backpackTool and backpackTool:FindFirstChild("repTime") then
-            backpackTool.repTime.Value = 1
-        end
-    end
-end)
-
--- ✅ Auto Pushups
-FarmNormal:AddSwitch("Auto Pushups", function(bool)
-    _G.FastPushups = bool
-    if bool then
-        spawn(function()
-            while _G.FastPushups do
-                local player = game.Players.LocalPlayer
-                local character = player.Character
-                if character and not character:FindFirstChild("Pushups") then
-                    local pushupsTool = player.Backpack:FindFirstChild("Pushups")
-                    if pushupsTool then
-                        if pushupsTool:FindFirstChild("repTime") then
-                            pushupsTool.repTime.Value = 0
-                        end
-                        character.Humanoid:EquipTool(pushupsTool)
-                    end
-                elseif character and character:FindFirstChild("Pushups") then
-                    local equipped = character:FindFirstChild("Pushups")
-                    if equipped:FindFirstChild("repTime") then
-                        equipped.repTime.Value = 0
-                    end
-                end
-                task.wait(0.1)
-            end
-        end)
-
-        spawn(function()
-            while _G.FastPushups do
-                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
-                task.wait(0)
-            end
-        end)
-    else
-        local character = game.Players.LocalPlayer.Character
-        local equipped = character:FindFirstChild("Pushups")
-        if equipped then
-            if equipped:FindFirstChild("repTime") then
-                equipped.repTime.Value = 1
-            end
-            equipped.Parent = game.Players.LocalPlayer.Backpack
-        end
-        local backpackTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Pushups")
-        if backpackTool and backpackTool:FindFirstChild("repTime") then
-            backpackTool.repTime.Value = 1
-        end
-    end
-end)
-
--- ✅ AUTO COMER EGG (30 Min)
-local autoEatEnabled = false
-local function eatProteinEgg()
-    local player = game.Players.LocalPlayer
-    local backpack = player:WaitForChild("Backpack")
-    local character = player.Character or player.CharacterAdded:Wait()
-
-    local egg = backpack:FindFirstChild("Protein Egg")
-    if egg then
-        egg.Parent = character
-        pcall(function()
-            egg:Activate()
-        end)
-        print("[AutoEgg] Protein Egg consumido.")
-    else
-        warn("[AutoEgg] No se encontró Protein Egg en Backpack.")
-    end
-end
-
-task.spawn(function()
-    while true do
-        if autoEatEnabled then
-            eatProteinEgg()
-            task.wait(1800)
-        else
-            task.wait(1)
-        end
-    end
-end)
-
-FarmNormal:AddSwitch("Eat Egg (30 Min)", function(state)
-    autoEatEnabled = state
-    print("[AutoEgg]", state and "Activado" or "Desactivado")
-end)
-
-
--- 📌 SEGUNDA PESTAÑA: ROCK FARM
-local RockTab = window:AddTab("Rock Farm")
-
--- ⚡ SWITCHES DE ROCKS LISTOS
-local function gettool()
-    local LocalPlayer = game.Players.LocalPlayer
-    for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
-        if v.Name == "Punch" and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            LocalPlayer.Character.Humanoid:EquipTool(v)
-        end
-    end
-    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
-end
-
-local function createRockSwitch(tab, name, durabilityRequirement)
-    tab:AddSwitch(name, function(Value)
-        getgenv().autoFarm = Value
-        if Value then
-            task.spawn(function()
-                while getgenv().autoFarm do
-                    if not getgenv().autoFarm then break end
-                    pcall(function()
-                        local LocalPlayer = game.Players.LocalPlayer
-                        if LocalPlayer.Durability.Value >= durabilityRequirement then
-                            local character = LocalPlayer.Character
-                            if character and character:FindFirstChild("LeftHand") and character:FindFirstChild("RightHand") then
-                                for i, v in pairs(game.Workspace.machinesFolder:GetDescendants()) do
-                                    if v.Name == "neededDurability" and v.Value == durabilityRequirement then
-                                        local rock = v.Parent.Rock
-                                        firetouchinterest(rock, character.RightHand, 0)
-                                        firetouchinterest(rock, character.RightHand, 1)
-                                        firetouchinterest(rock, character.LeftHand, 0)
-                                        firetouchinterest(rock, character.LeftHand, 1)
-                                        gettool()
-                                        break
-                                    end
-                                end
-                            end
-                        end
-                    end)
-                    task.wait(0.1)
-                end
-            end)
-        end
-    end)
-end
-
-local rocks = {
-    {"Tiny Rock", 0},
-    {"Starter Rock", 100},
-    {"Legend Beach Rock", 5000},
-    {"Frozen Rock", 150000},
-    {"Mythical Rock", 400000},
-    {"Eternal Rock", 750000},
-    {"Legend Rock", 1000000},
-    {"Muscle King Rock", 5000000},
-    {"Jungle Rock", 10000000}
-}
-
-for _, rockData in pairs(rocks) do
-    createRockSwitch(RockTab, rockData[1], rockData[2])
-end
-
-
 local AutoFarm = window:AddTab("Farm OP")
 
 AutoFarm:AddSwitch("Fuerza OP", function(state)
@@ -3486,3 +3253,241 @@ task.spawn(function()
     end
 end)
 
+-- 📌 CREAR PESTAÑA ROCK
+local RockTab = window:AddTab("Rock Farm")
+
+-- ⚡ SWITCHES DE ROCKS LISTOS
+
+-- Función para equipar Punch y hacer punch
+local function gettool()
+    local LocalPlayer = game.Players.LocalPlayer
+    for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
+        if v.Name == "Punch" and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            LocalPlayer.Character.Humanoid:EquipTool(v)
+        end
+    end
+    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+end
+
+-- Función para crear un switch de roca
+local function createRockSwitch(tab, name, durabilityRequirement)
+    tab:AddSwitch(name, function(Value)
+        getgenv().autoFarm = Value
+        
+        if Value then
+            task.spawn(function()
+                while getgenv().autoFarm do
+                    if not getgenv().autoFarm then break end
+                    
+                    pcall(function()
+                        local LocalPlayer = game.Players.LocalPlayer
+                        if LocalPlayer.Durability.Value >= durabilityRequirement then
+                            local character = LocalPlayer.Character
+                            if character and character:FindFirstChild("LeftHand") and character:FindFirstChild("RightHand") then
+                                for i, v in pairs(game.Workspace.machinesFolder:GetDescendants()) do
+                                    if v.Name == "neededDurability" and v.Value == durabilityRequirement then
+                                        local rock = v.Parent.Rock
+                                        firetouchinterest(rock, character.RightHand, 0)
+                                        firetouchinterest(rock, character.RightHand, 1)
+                                        firetouchinterest(rock, character.LeftHand, 0)
+                                        firetouchinterest(rock, character.LeftHand, 1)
+                                        gettool()
+                                        break
+                                    end
+                                end
+                            end
+                        end
+                    end)
+                    task.wait(0.1)
+                end
+            end)
+        end
+    end)
+end
+
+-- Lista de todas las rocas
+local rocks = {
+    {"Tiny Rock", 0},
+    {"Starter Rock", 100},
+    {"Legend Beach Rock", 5000},
+    {"Frozen Rock", 150000},
+    {"Mythical Rock", 400000},
+    {"Eternal Rock", 750000},
+    {"Legend Rock", 1000000},
+    {"Muscle King Rock", 5000000},
+    {"Jungle Rock", 10000000}
+}
+
+-- Crear todos los switches en la pestaña Rock
+for _, rockData in pairs(rocks) do
+    createRockSwitch(RockTab, rockData[1], rockData[2])
+end
+
+
+-- 📌 PESTAÑA FARM NORMAL
+local FarmNormal = window:AddTab("Farm Normal")
+
+-- ✅ Auto Rebirth (Normal)
+local autoRebirth = false
+FarmNormal:AddSwitch("Auto Rebirth (Normal)", function(state)
+    autoRebirth = state
+    while autoRebirth do
+        game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("rebirthRemote"):InvokeServer("rebirthRequest")
+        task.wait(0.1)
+    end
+end)
+
+-- ✅ Auto Size 2
+local autoSizeLoop = nil
+FarmNormal:AddSwitch("Auto Size 2", function(state)
+    if state then
+        autoSizeLoop = task.spawn(function()
+            while task.wait(0) do
+                game:GetService("ReplicatedStorage").rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", 2)
+            end
+        end)
+    else
+        if autoSizeLoop then
+            task.cancel(autoSizeLoop)
+            autoSizeLoop = nil
+        end
+    end
+end)
+
+-- ✅ Teleport a Muscle King
+FarmNormal:AddButton("Teleport Muscle King", function()
+    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-8626, 15, -5730)
+end)
+
+-- ✅ Auto Weight
+FarmNormal:AddSwitch("Auto Weight", function(bool)
+    _G.FastWeight = bool
+    if bool then
+        spawn(function()
+            while _G.FastWeight do
+                local player = game.Players.LocalPlayer
+                local character = player.Character
+                if character and not character:FindFirstChild("Weight") then
+                    local weightTool = player.Backpack:FindFirstChild("Weight")
+                    if weightTool then
+                        if weightTool:FindFirstChild("repTime") then
+                            weightTool.repTime.Value = 0
+                        end
+                        character.Humanoid:EquipTool(weightTool)
+                    end
+                elseif character and character:FindFirstChild("Weight") then
+                    local equipped = character:FindFirstChild("Weight")
+                    if equipped:FindFirstChild("repTime") then
+                        equipped.repTime.Value = 0
+                    end
+                end
+                task.wait(0.1)
+            end
+        end)
+
+        spawn(function()
+            while _G.FastWeight do
+                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+                task.wait(0)
+            end
+        end)
+    else
+        local character = game.Players.LocalPlayer.Character
+        local equipped = character:FindFirstChild("Weight")
+        if equipped then
+            if equipped:FindFirstChild("repTime") then
+                equipped.repTime.Value = 1
+            end
+            equipped.Parent = game.Players.LocalPlayer.Backpack
+        end
+        local backpackTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Weight")
+        if backpackTool and backpackTool:FindFirstChild("repTime") then
+            backpackTool.repTime.Value = 1
+        end
+    end
+end)
+
+-- ✅ Auto Pushups
+FarmNormal:AddSwitch("Auto Pushups", function(bool)
+    _G.FastPushups = bool
+    if bool then
+        spawn(function()
+            while _G.FastPushups do
+                local player = game.Players.LocalPlayer
+                local character = player.Character
+                if character and not character:FindFirstChild("Pushups") then
+                    local pushupsTool = player.Backpack:FindFirstChild("Pushups")
+                    if pushupsTool then
+                        if pushupsTool:FindFirstChild("repTime") then
+                            pushupsTool.repTime.Value = 0
+                        end
+                        character.Humanoid:EquipTool(pushupsTool)
+                    end
+                elseif character and character:FindFirstChild("Pushups") then
+                    local equipped = character:FindFirstChild("Pushups")
+                    if equipped:FindFirstChild("repTime") then
+                        equipped.repTime.Value = 0
+                    end
+                end
+                task.wait(0.1)
+            end
+        end)
+
+        spawn(function()
+            while _G.FastPushups do
+                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
+                task.wait(0)
+            end
+        end)
+    else
+        local character = game.Players.LocalPlayer.Character
+        local equipped = character:FindFirstChild("Pushups")
+        if equipped then
+            if equipped:FindFirstChild("repTime") then
+                equipped.repTime.Value = 1
+            end
+            equipped.Parent = game.Players.LocalPlayer.Backpack
+        end
+        local backpackTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Pushups")
+        if backpackTool and backpackTool:FindFirstChild("repTime") then
+            backpackTool.repTime.Value = 1
+        end
+    end
+end)
+
+-- ✅ AUTO COMER EGG (30 Min)
+local autoEatEnabled = false
+
+local function eatProteinEgg()
+    local player = game.Players.LocalPlayer
+    local backpack = player:WaitForChild("Backpack")
+    local character = player.Character or player.CharacterAdded:Wait()
+
+    local egg = backpack:FindFirstChild("Protein Egg")
+    if egg then
+        egg.Parent = character
+        pcall(function()
+            egg:Activate()
+        end)
+        print("[AutoEgg] Protein Egg consumido.")
+    else
+        warn("[AutoEgg] No se encontró Protein Egg en Backpack.")
+    end
+end
+
+task.spawn(function()
+    while true do
+        if autoEatEnabled then
+            eatProteinEgg()
+            task.wait(1800) -- 30 min
+        else
+            task.wait(1)
+        end
+    end
+end)
+
+FarmNormal:AddSwitch("Eat Egg (30 Min)", function(state)
+    autoEatEnabled = state
+    print("[AutoEgg]", state and "Activado" or "Desactivado")
+end)
