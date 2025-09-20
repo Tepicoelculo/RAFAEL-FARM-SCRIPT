@@ -1,3 +1,42 @@
+local whitelist = {
+    ["Rafael25IC"] = true,
+    ["elpepe2929290"] = true,
+    ["Doritosdezz_0"] = true,
+    ["kkaconsal"] = true,
+    ["ilopo124"] = true,
+    ["Mathi_sann"] = true,
+    ["TheReal9818"] = true,
+    ["Maykel200912345"] = true,
+    ["pro9pup"] = true,
+    ["Dianaamf2"] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true
+}
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+if not whitelist[LocalPlayer.Name] then
+    LocalPlayer:Kick("Chinga tu madre perro pobre paga el Script")
+end
+
+
 local Players = game:GetService("Players")
 local VirtualUser = game:GetService("VirtualUser")
 
