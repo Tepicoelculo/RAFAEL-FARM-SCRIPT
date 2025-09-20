@@ -42,7 +42,7 @@ local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/memej
 -- VENTANA PRINCIPAL
 local window = library:AddWindow("⚠️ Toxic PAID V2 | By Rafael ⚠️", {
     main_color = Color3.fromRGB(34, 56, 34), 
-    min_size = Vector2.new(810, 820),
+    min_size = Vector2.new(870, 820),
     can_resize = false,
 })
 
@@ -3356,7 +3356,7 @@ FarmNormal:AddSwitch("Auto Size 2", function(state)
 end)
 
 -- ✅ Teleport a Muscle King
-FarmNormal:AddButton("Teleport Muscle King", function()
+FarmNormal:AddSwitch("Teleport Muscle King", function()
     game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-8626, 15, -5730)
 end)
 
