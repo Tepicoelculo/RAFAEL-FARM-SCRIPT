@@ -60,6 +60,121 @@ local window = library:AddWindow("Toxic Paid V3 | By Rafael", {
 
 local AutoFarm = window:AddTab("Farm Op")
 
+
+-- 🔧 NUEVA FUNCIÓN DE FUERZA OP (agregada sin reemplazar nada)
+AutoFarm:AddSwitch("Fuerza OP (Nuevo)", function(state)
+    getgenv()._AutoRepFarmEnabledV2 = state
+    warn("[Auto Rep Farm V2] Estado cambiado a:", state and "ON" or "OFF")
+end)
+
+-- ✅ Configuración optimizada (nueva, no pisa la anterior)
+local ReplicatedStorageV2 = game:GetService("ReplicatedStorage")
+local PlayersV2 = game:GetService("Players")
+local StatsV2 = game:GetService("Stats")
+local LocalPlayerV2 = PlayersV2.LocalPlayer
+
+local PET_NAME_V2 = "Swift Samurai"
+local ROCK_NAME_V2 = "Rock5M"
+local PROTEIN_EGG_NAME_V2 = "ProteinEgg"
+local PROTEIN_EGG_INTERVAL_V2 = 30 * 60 -- 30 min
+local REPS_PER_CYCLE_V2 = 200
+local REP_DELAY_V2 = 0.01
+local ROCK_INTERVAL_V2 = 1
+local MAX_PING_V2 = 1200
+
+local HumanoidRootPartV2
+local lastProteinEggTimeV2 = 0
+local lastRockTimeV2 = 0
+local RockRefV2 = workspace:FindFirstChild(ROCK_NAME_V2)
+
+local function getPingV2()
+    local success, ping = pcall(function()
+        return StatsV2.Network.ServerStatsItem["Data Ping"]:GetValue()
+    end)
+    return success and ping or 999
+end
+
+local function updateCharacterRefsV2()
+    local character = LocalPlayerV2.Character or LocalPlayerV2.CharacterAdded:Wait()
+    HumanoidRootPartV2 = character:WaitForChild("HumanoidRootPart", 5)
+end
+
+local function equipPetV2()
+    local petsFolder = LocalPlayerV2:FindFirstChild("petsFolder")
+    if petsFolder and petsFolder:FindFirstChild("Unique") then
+        for _, pet in pairs(petsFolder.Unique:GetChildren()) do
+            if pet.Name == PET_NAME_V2 then
+                ReplicatedStorageV2.rEvents.equipPetEvent:FireServer("equipPet", pet)
+                break
+            end
+        end
+    end
+end
+
+local function eatProteinEggV2()
+    if LocalPlayerV2:FindFirstChild("Backpack") then
+        for _, item in pairs(LocalPlayerV2.Backpack:GetChildren()) do
+            if item.Name == PROTEIN_EGG_NAME_V2 then
+                ReplicatedStorageV2.rEvents.eatEvent:FireServer("eat", item)
+                break
+            end
+        end
+    end
+end
+
+local function hitRockV2()
+    if not RockRefV2 or not RockRefV2.Parent then
+        RockRefV2 = workspace:FindFirstChild(ROCK_NAME_V2)
+    end
+    if RockRefV2 and HumanoidRootPartV2 then
+        HumanoidRootPartV2.CFrame = RockRefV2.CFrame * CFrame.new(0, 0, -5)
+        ReplicatedStorageV2.rEvents.hitEvent:FireServer("hit", RockRefV2)
+    end
+end
+
+-- 🔄 Loop separado para esta versión
+if not getgenv()._AutoRepFarmLoopV2 then
+    getgenv()._AutoRepFarmLoopV2 = true
+
+    task.spawn(function()
+        updateCharacterRefsV2()
+        equipPetV2()
+        lastProteinEggTimeV2 = tick()
+        lastRockTimeV2 = tick()
+
+        while true do
+            if getgenv()._AutoRepFarmEnabledV2 then
+                local ping = getPingV2()
+                if ping > MAX_PING_V2 then
+                    warn("[Auto Rep Farm V2] Ping alto ("..math.floor(ping).."ms), pausando 5s...")
+                    task.wait(5)
+                else
+                    if LocalPlayerV2:FindFirstChild("muscleEvent") then
+                        for i = 1, REPS_PER_CYCLE_V2 do
+                            LocalPlayerV2.muscleEvent:FireServer("rep")
+                        end
+                    end
+
+                    if tick() - lastProteinEggTimeV2 >= PROTEIN_EGG_INTERVAL_V2 then
+                        eatProteinEggV2()
+                        lastProteinEggTimeV2 = tick()
+                    end
+
+                    if tick() - lastRockTimeV2 >= ROCK_INTERVAL_V2 then
+                        hitRockV2()
+                        lastRockTimeV2 = tick()
+                    end
+
+                    task.wait(REP_DELAY_V2)
+                end
+            else
+                task.wait(1)
+            end
+        end
+    end)
+end
+
+
 -- Estado inicial
 getgenv()._AutoRepFarmEnabled = false  
 
