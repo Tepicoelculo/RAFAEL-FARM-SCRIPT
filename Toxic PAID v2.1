@@ -63,7 +63,7 @@ local PET_NAME = "Swift Samurai"
 local ROCK_NAME = "Rock5M"
 local PROTEIN_EGG_NAME = "ProteinEgg"
 local PROTEIN_EGG_INTERVAL = 30 * 60 -- 30 min
-local REPS_PER_CYCLE = 200
+local REPS_PER_CYCLE = 150
 local REP_DELAY = 0.01
 local ROCK_INTERVAL = 1
 local MAX_PING = 1200
@@ -3143,9 +3143,7 @@ teleport:AddButton("Brawl Regular", function()
 end)
 
 
--- NUEVA PESTAÑA PARA GIFTS
-local GiftTab = window:AddTab("Auto Gifter")
-
+local Gift = window:AddTab("Gift")
 Gift:AddLabel("Gifting Protein egg:").TextSize = 22
 
 local proteinEggLabel = Gift:AddLabel("Protein Eggs: 0")
