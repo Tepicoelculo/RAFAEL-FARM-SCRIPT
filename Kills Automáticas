@@ -4,7 +4,7 @@ local whitelist = {
     ["Leozam09"] = true,
     ["azosroblox2"] = true,
     ["LosTDZMisHijos"] = true,
-    ["TheReal9818"] = true
+    ["elpepe2929290"] = true
 }
 
 local Players = game:GetService("Players")
