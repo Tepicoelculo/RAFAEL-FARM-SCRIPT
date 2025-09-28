@@ -539,17 +539,14 @@ task.spawn(function()
     end
 end)
 
--- ===========================
--- PESTAÑA: Calculadora de Daño
--- ===========================
-local Calculadora = window:AddTab("Calculadora 1", Color3.fromRGB(200, 100, 100))
+local Calculadora = window:AddTab("calculator", Color3.fromRGB(200, 100, 100))
 
 local baseStrength = 0
 local resultadoLabelsDamage = {}
 
-Calculadora:AddLabel("Pack Damage Calculator")
+local FolderDamage = Calculadora:AddFolder("Pack Damage Calculator")
 
-Calculadora:AddTextBox("Fuerza Base (ej: 1.87Qa, T, B)", function(text)
+FolderDamage:AddTextBox("Base Strongth (ej: 1.27Qa, T, B)", function(text)
     local unidades = { ["T"] = 1e12, ["Q"] = 1e15, ["B"] = 1e9 }
     text = text:upper()
     for u, m in pairs(unidades) do
@@ -564,15 +561,15 @@ Calculadora:AddTextBox("Fuerza Base (ej: 1.87Qa, T, B)", function(text)
     baseStrength = tonumber(text:match("(%d+%.?%d*)")) or 0
 end)
 
-local mensajeLabelDamage = Calculadora:AddLabel("") -- Label para mostrar errores
+local mensajeLabelDamage = FolderDamage:AddLabel("")
 
 for i = 1, 8 do
-    resultadoLabelsDamage[i] = Calculadora:AddLabel(string.format("%d pack(s): -", i))
+    resultadoLabelsDamage[i] = FolderDamage:AddLabel(string.format("%d pack(s): -", i))
 end
 
-Calculadora:AddButton("Calculate", function()
+FolderDamage:AddButton("Calculate Damage", function()
     if baseStrength <= 0 then
-        mensajeLabelDamage.Text = "Ingresa un valor válido."
+        mensajeLabelDamage.Text = "Enter a valid value."
         for i = 1, 8 do
             resultadoLabelsDamage[i].Text = string.format("%d pack(s): -", i)
         end
@@ -603,17 +600,12 @@ Calculadora:AddButton("Calculate", function()
     end
 end)
 
--- ===============================
--- PESTAÑA: Calculadora de Durabilidad
--- ===============================
-local Calculadora2 = window:AddTab("Calculadora 2", Color3.fromRGB(200, 100, 100))
-
 local baseDurabilidad = 0
-local resultadoLabelsDurability = {}
+local resultadoLabelsDurabilidad = {}
 
-Calculadora2:AddLabel("Pack Durability Calculator")
+local FolderDurabilidad = Calculadora:AddFolder("Pack Durability Calculator")
 
-Calculadora2:AddTextBox("Durabilidad base (ej: 1.87Qa, T, B)", function(text)
+FolderDurabilidad:AddTextBox("Base durability (ej: 1.27Qa, T, B)", function(text)
     local unidades = { ["T"] = 1e12, ["Q"] = 1e15, ["B"] = 1e9 }
     text = text:upper()
     for u, m in pairs(unidades) do
@@ -628,22 +620,22 @@ Calculadora2:AddTextBox("Durabilidad base (ej: 1.87Qa, T, B)", function(text)
     baseDurabilidad = tonumber(text:match("(%d+%.?%d*)")) or 0
 end)
 
-local mensajeLabelDurability = Calculadora2:AddLabel("")
+local mensajeLabelDurabilidad = FolderDurabilidad:AddLabel("")
 
 for i = 1, 8 do
-    resultadoLabelsDurability[i] = Calculadora2:AddLabel(string.format("%d pack(s): -", i))
+    resultadoLabelsDurabilidad[i] = FolderDurabilidad:AddLabel(string.format("%d pack(s): -", i))
 end
 
-Calculadora2:AddButton("Calcular", function()
+FolderDurabilidad:AddButton("Calculate Durability", function()
     if baseDurabilidad <= 0 then
-        mensajeLabelDurability.Text = "Ingresa un valor válido."
+        mensajeLabelDurabilidad.Text = "Enter a valid value."
         for i = 1, 8 do
-            resultadoLabelsDurability[i].Text = string.format("%d pack(s): -", i)
+            resultadoLabelsDurabilidad[i].Text = string.format("%d pack(s): -", i)
         end
         return
     end
 
-    mensajeLabelDurability.Text = ""
+    mensajeLabelDurabilidad.Text = ""
 
     local incremento = 0.335
     local adicional = 1.5
@@ -663,10 +655,9 @@ Calculadora2:AddButton("Calcular", function()
             disp = tostring(math.floor(valor))
         end
 
-        resultadoLabelsDurability[pack].Text = string.format("%d pack(s): %s", pack, disp)
+        resultadoLabelsDurabilidad[pack].Text = string.format("%d pack(s): %s", pack, disp)
     end
 end)
-
 
 local Killer = window:AddTab("Kills")
 
