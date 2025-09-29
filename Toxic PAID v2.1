@@ -513,76 +513,230 @@ autoEquipToolsFolder:AddSwitch("Fast Tools", function(Value)
 end)
 
 
--- 📂 FOLDER ROCKS en la pestaña existente FarmOPTab
-local Rocks = FarmOPTab:AddFolder("Rocks")
+-- 📌 NUEVO FOLDER ROCKS
+local RocksFolder = AutoFarm:AddFolder("Rocks")
 
--- ⚡ SWITCHES DE ROCKS LISTOS
+-- 🪨 Rock Farming Label
+RocksFolder:AddLabel("Rock Farming")
 
 -- Función para equipar Punch y hacer punch
 local function gettool()
-    local LocalPlayer = game.Players.LocalPlayer
-    for i, v in pairs(LocalPlayer.Backpack:GetChildren()) do
-        if v.Name == "Punch" and LocalPlayer.Character:FindFirstChild("Humanoid") then
-            LocalPlayer.Character.Humanoid:EquipTool(v)
+    for i, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+        if v.Name == "Punch" and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+            game.Players.LocalPlayer.Character.Humanoid:EquipTool(v)
         end
     end
-    LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
-    LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+    game:GetService("Players").LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+    game:GetService("Players").LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
 end
 
--- Función para crear un switch de roca dentro del folder Rocks
-local function createRockSwitch(folder, name, durabilityRequirement)
-    folder:AddSwitch(name, function(Value)
-        getgenv().autoFarm = Value
-        
-        if Value then
-            task.spawn(function()
-                while getgenv().autoFarm do
-                    if not getgenv().autoFarm then break end
-                    
-                    pcall(function()
-                        local LocalPlayer = game.Players.LocalPlayer
-                        if LocalPlayer.Durability.Value >= durabilityRequirement then
-                            local character = LocalPlayer.Character
-                            if character and character:FindFirstChild("LeftHand") and character:FindFirstChild("RightHand") then
-                                for i, v in pairs(game.Workspace.machinesFolder:GetDescendants()) do
-                                    if v.Name == "neededDurability" and v.Value == durabilityRequirement then
-                                        local rock = v.Parent.Rock
-                                        firetouchinterest(rock, character.RightHand, 0)
-                                        firetouchinterest(rock, character.RightHand, 1)
-                                        firetouchinterest(rock, character.LeftHand, 0)
-                                        firetouchinterest(rock, character.LeftHand, 1)
-                                        gettool()
-                                        break
-                                    end
-                                end
-                            end
+-- 🌴 Tiny Island Rock
+RocksFolder:AddSwitch("Tiny Island Rock", function(bool)
+    selectrock = "Tiny Island Rock"
+    getgenv().autoFarm = bool
+    if bool then
+        spawn(function()
+            while getgenv().autoFarm do
+                task.wait()
+                if game.Players.LocalPlayer.Durability.Value >= 0 then
+                    for _, v in pairs(game.Workspace.machinesFolder:GetDescendants()) do
+                        if v.Name == "neededDurability" and v.Value == 0 and
+                           game.Players.LocalPlayer.Character:FindFirstChild("LeftHand") and
+                           game.Players.LocalPlayer.Character:FindFirstChild("RightHand") then
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 1)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 1)
+                            gettool()
                         end
-                    end)
-                    task.wait(0.1)
+                    end
                 end
-            end)
-        end
-    end)
-end
+            end
+        end)
+    end
+end)
 
--- Lista de todas las rocas
-local rocks = {
-    {"Tiny Rock", 0},
-    {"Starter Rock", 100},
-    {"Legend Beach Rock", 5000},
-    {"Frozen Rock", 150000},
-    {"Mythical Rock", 400000},
-    {"Eternal Rock", 750000},
-    {"Legend Rock", 1000000},
-    {"Muscle King Rock", 5000000},
-    {"Jungle Rock", 10000000}
-}
+-- 🏝 Starter Island Rock
+RocksFolder:AddSwitch("Starter Island Rock", function(bool)
+    selectrock = "Starter Island Rock"
+    getgenv().autoFarm = bool
+    if bool then
+        spawn(function()
+            while getgenv().autoFarm do
+                task.wait()
+                if game.Players.LocalPlayer.Durability.Value >= 100 then
+                    for _, v in pairs(game.Workspace.machinesFolder:GetDescendants()) do
+                        if v.Name == "neededDurability" and v.Value == 100 and
+                           game.Players.LocalPlayer.Character:FindFirstChild("LeftHand") and
+                           game.Players.LocalPlayer.Character:FindFirstChild("RightHand") then
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 1)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 1)
+                            gettool()
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
 
--- Crear todos los switches en el folder Rocks
-for _, rockData in pairs(rocks) do
-    createRockSwitch(Rocks, rockData[1], rockData[2])
-end
+-- 🏖 Legend Beach Rock
+RocksFolder:AddSwitch("Legend Beach Rock", function(bool)
+    selectrock = "Legend Beach Rock"
+    getgenv().autoFarm = bool
+    if bool then
+        spawn(function()
+            while getgenv().autoFarm do
+                task.wait()
+                if game.Players.LocalPlayer.Durability.Value >= 5000 then
+                    for _, v in pairs(game.Workspace.machinesFolder:GetDescendants()) do
+                        if v.Name == "neededDurability" and v.Value == 5000 and
+                           game.Players.LocalPlayer.Character:FindFirstChild("LeftHand") and
+                           game.Players.LocalPlayer.Character:FindFirstChild("RightHand") then
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 1)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 1)
+                            gettool()
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+-- ❄ Frost Gym Rock
+RocksFolder:AddSwitch("Frost Gym Rock", function(bool)
+    selectrock = "Frost Gym Rock"
+    getgenv().autoFarm = bool
+    if bool then
+        spawn(function()
+            while getgenv().autoFarm do
+                task.wait()
+                if game.Players.LocalPlayer.Durability.Value >= 150000 then
+                    for _, v in pairs(game.Workspace.machinesFolder:GetDescendants()) do
+                        if v.Name == "neededDurability" and v.Value == 150000 and
+                           game.Players.LocalPlayer.Character:FindFirstChild("LeftHand") and
+                           game.Players.LocalPlayer.Character:FindFirstChild("RightHand") then
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 1)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 1)
+                            gettool()
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+-- 🗿 Mythical Gym Rock
+RocksFolder:AddSwitch("Mythical Gym Rock", function(bool)
+    selectrock = "Mythical Gym Rock"
+    getgenv().autoFarm = bool
+    if bool then
+        spawn(function()
+            while getgenv().autoFarm do
+                task.wait()
+                if game.Players.LocalPlayer.Durability.Value >= 400000 then
+                    for _, v in pairs(game.Workspace.machinesFolder:GetDescendants()) do
+                        if v.Name == "neededDurability" and v.Value == 400000 and
+                           game.Players.LocalPlayer.Character:FindFirstChild("LeftHand") and
+                           game.Players.LocalPlayer.Character:FindFirstChild("RightHand") then
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 1)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 1)
+                            gettool()
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+-- 🔱 Eternal Gym Rock
+RocksFolder:AddSwitch("Eternal Gym Rock", function(bool)
+    selectrock = "Eternal Gym Rock"
+    getgenv().autoFarm = bool
+    if bool then
+        spawn(function()
+            while getgenv().autoFarm do
+                task.wait()
+                if game.Players.LocalPlayer.Durability.Value >= 1200000 then
+                    for _, v in pairs(game.Workspace.machinesFolder:GetDescendants()) do
+                        if v.Name == "neededDurability" and v.Value == 1200000 and
+                           game.Players.LocalPlayer.Character:FindFirstChild("LeftHand") and
+                           game.Players.LocalPlayer.Character:FindFirstChild("RightHand") then
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 1)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 1)
+                            gettool()
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+-- 👑 Muscle King Gym Rock
+RocksFolder:AddSwitch("Muscle King Gym Rock", function(bool)
+    selectrock = "Muscle King Gym Rock"
+    getgenv().autoFarm = bool
+    if bool then
+        spawn(function()
+            while getgenv().autoFarm do
+                task.wait()
+                if game.Players.LocalPlayer.Durability.Value >= 3000000 then
+                    for _, v in pairs(game.Workspace.machinesFolder:GetDescendants()) do
+                        if v.Name == "neededDurability" and v.Value == 3000000 and
+                           game.Players.LocalPlayer.Character:FindFirstChild("LeftHand") and
+                           game.Players.LocalPlayer.Character:FindFirstChild("RightHand") then
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 1)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 1)
+                            gettool()
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
+
+-- 🌳 Ancient Jungle Rock
+RocksFolder:AddSwitch("Ancient Jungle Rock", function(bool)
+    selectrock = "Ancient Jungle Rock"
+    getgenv().autoFarm = bool
+    if bool then
+        spawn(function()
+            while getgenv().autoFarm do
+                task.wait()
+                if game.Players.LocalPlayer.Durability.Value >= 15000000 then
+                    for _, v in pairs(game.Workspace.machinesFolder:GetDescendants()) do
+                        if v.Name == "neededDurability" and v.Value == 15000000 and
+                           game.Players.LocalPlayer.Character:FindFirstChild("LeftHand") and
+                           game.Players.LocalPlayer.Character:FindFirstChild("RightHand") then
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.RightHand, 1)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 0)
+                            firetouchinterest(v.Parent.Rock, game.Players.LocalPlayer.Character.LeftHand, 1)
+                            gettool()
+                        end
+                    end
+                end
+            end
+        end)
+    end
+end)
 
 
 -- 📊 NUEVA PESTAÑA: CALCULAR STATS
