@@ -26,6 +26,17 @@ local whitelist = {
     [""] = true,
     [""] = true,
     [""] = true,
+    [""] = true, 
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
+    [""] = true,
     [""] = true
 }
 
@@ -3671,173 +3682,6 @@ task.spawn(function()
     end
 end)
 
-
--- 📌 PESTAÑA FARM NORMAL
-local FarmNormal = window:AddTab("Farm Normal")
-
--- ✅ Auto Rebirth (Normal)
-local autoRebirth = false
-FarmNormal:AddSwitch("Auto Rebirth (Normal)", function(state)
-    autoRebirth = state
-    while autoRebirth do
-        game:GetService("ReplicatedStorage"):WaitForChild("rEvents"):WaitForChild("rebirthRemote"):InvokeServer("rebirthRequest")
-        task.wait(0.1)
-    end
-end)
-
--- ✅ Auto Size 2
-local autoSizeLoop = nil
-FarmNormal:AddSwitch("Auto Size 2", function(state)
-    if state then
-        autoSizeLoop = task.spawn(function()
-            while task.wait(0) do
-                game:GetService("ReplicatedStorage").rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", 2)
-            end
-        end)
-    else
-        if autoSizeLoop then
-            task.cancel(autoSizeLoop)
-            autoSizeLoop = nil
-        end
-    end
-end)
-
--- ✅ Teleport a Muscle King
-FarmNormal:AddSwitch("Teleport Muscle King", function()
-    game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-8626, 15, -5730)
-end)
-
--- ✅ Auto Weight
-FarmNormal:AddSwitch("Auto Weight", function(bool)
-    _G.FastWeight = bool
-    if bool then
-        spawn(function()
-            while _G.FastWeight do
-                local player = game.Players.LocalPlayer
-                local character = player.Character
-                if character and not character:FindFirstChild("Weight") then
-                    local weightTool = player.Backpack:FindFirstChild("Weight")
-                    if weightTool then
-                        if weightTool:FindFirstChild("repTime") then
-                            weightTool.repTime.Value = 0
-                        end
-                        character.Humanoid:EquipTool(weightTool)
-                    end
-                elseif character and character:FindFirstChild("Weight") then
-                    local equipped = character:FindFirstChild("Weight")
-                    if equipped:FindFirstChild("repTime") then
-                        equipped.repTime.Value = 0
-                    end
-                end
-                task.wait(0.1)
-            end
-        end)
-
-        spawn(function()
-            while _G.FastWeight do
-                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
-                task.wait(0)
-            end
-        end)
-    else
-        local character = game.Players.LocalPlayer.Character
-        local equipped = character:FindFirstChild("Weight")
-        if equipped then
-            if equipped:FindFirstChild("repTime") then
-                equipped.repTime.Value = 1
-            end
-            equipped.Parent = game.Players.LocalPlayer.Backpack
-        end
-        local backpackTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Weight")
-        if backpackTool and backpackTool:FindFirstChild("repTime") then
-            backpackTool.repTime.Value = 1
-        end
-    end
-end)
-
--- ✅ Auto Pushups
-FarmNormal:AddSwitch("Auto Pushups", function(bool)
-    _G.FastPushups = bool
-    if bool then
-        spawn(function()
-            while _G.FastPushups do
-                local player = game.Players.LocalPlayer
-                local character = player.Character
-                if character and not character:FindFirstChild("Pushups") then
-                    local pushupsTool = player.Backpack:FindFirstChild("Pushups")
-                    if pushupsTool then
-                        if pushupsTool:FindFirstChild("repTime") then
-                            pushupsTool.repTime.Value = 0
-                        end
-                        character.Humanoid:EquipTool(pushupsTool)
-                    end
-                elseif character and character:FindFirstChild("Pushups") then
-                    local equipped = character:FindFirstChild("Pushups")
-                    if equipped:FindFirstChild("repTime") then
-                        equipped.repTime.Value = 0
-                    end
-                end
-                task.wait(0.1)
-            end
-        end)
-
-        spawn(function()
-            while _G.FastPushups do
-                game:GetService("Players").LocalPlayer.muscleEvent:FireServer("rep")
-                task.wait(0)
-            end
-        end)
-    else
-        local character = game.Players.LocalPlayer.Character
-        local equipped = character:FindFirstChild("Pushups")
-        if equipped then
-            if equipped:FindFirstChild("repTime") then
-                equipped.repTime.Value = 1
-            end
-            equipped.Parent = game.Players.LocalPlayer.Backpack
-        end
-        local backpackTool = game.Players.LocalPlayer.Backpack:FindFirstChild("Pushups")
-        if backpackTool and backpackTool:FindFirstChild("repTime") then
-            backpackTool.repTime.Value = 1
-        end
-    end
-end)
-
--- ✅ AUTO COMER EGG (30 Min)
-local autoEatEnabled = false
-
-local function eatProteinEgg()
-    local player = game.Players.LocalPlayer
-    local backpack = player:WaitForChild("Backpack")
-    local character = player.Character or player.CharacterAdded:Wait()
-
-    local egg = backpack:FindFirstChild("Protein Egg")
-    if egg then
-        egg.Parent = character
-        pcall(function()
-            egg:Activate()
-        end)
-        print("[AutoEgg] Protein Egg consumido.")
-    else
-        warn("[AutoEgg] No se encontró Protein Egg en Backpack.")
-    end
-end
-
-task.spawn(function()
-    while true do
-        if autoEatEnabled then
-            eatProteinEgg()
-            task.wait(1800) -- 30 min
-        else
-            task.wait(1)
-        end
-    end
-end)
-
-FarmNormal:AddSwitch("Eat Egg (30 Min)", function(state)
-    autoEatEnabled = state
-    print("[AutoEgg]", state and "Activado" or "Desactivado")
-end)
 
 
 local Credits = window:AddTab("Credits")
