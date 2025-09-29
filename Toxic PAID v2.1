@@ -48,6 +48,99 @@ local window = library:AddWindow("⚠️ Toxic PAID V2 | By Rafael ⚠️", {
 
 local AutoFarm = window:AddTab("Farm OP")
 
+-- 📌 PESTAÑA FARM OP
+local FarmOP = window:AddTab("Farm OP")
+
+-- 📊 LABELS DE STATS
+local labels = {
+    TimeSpentLabel = FarmOP:AddLabel("Tiempo en el servidor: 00:00"),
+    StrengthGainedLabel = FarmOP:AddLabel("Fuerza ganada: 0"),
+    DurabilityGainedLabel = FarmOP:AddLabel("Durabilidad ganada: 0"),
+    AgilityGainedLabel = FarmOP:AddLabel("Agilidad ganada: 0"),
+    KillsGainedLabel = FarmOP:AddLabel("Asesinatos ganados: 0"),
+    EvilKarmaGainedLabel = FarmOP:AddLabel("Karma maligno ganado: 0"),
+    GoodKarmaGainedLabel = FarmOP:AddLabel("Karma bueno ganado: 0"),
+    RebirthsGainedLabel = FarmOP:AddLabel("Rebirths ganados: 0")
+}
+
+-- 🧠 FUNCIÓN PARA CREAR Y ACTUALIZAR LAS LABELS
+local function createMyLabels()
+    local player = game.Players.LocalPlayer
+    if not player then return end
+
+    local leaderstats = player:WaitForChild("leaderstats")
+    if not leaderstats then return end
+
+    local strengthStat = leaderstats:WaitForChild("Strength")
+    local durabilityStat = player:WaitForChild("Durability")
+    local agilityStat = player:WaitForChild("Agility")
+    local killsStat = leaderstats:WaitForChild("Kills")
+    local evilKarmaStat = player:WaitForChild("evilKarma")
+    local goodKarmaStat = player:WaitForChild("goodKarma")
+    local rebirthsStat = leaderstats:FindFirstChild("Rebirths")
+
+    -- Guardar valores iniciales
+    local initialStrength = strengthStat.Value or 0
+    local initialDurability = durabilityStat.Value or 0
+    local initialAgility = agilityStat.Value or 0
+    local initialKills = killsStat.Value or 0
+    local initialEvilKarma = evilKarmaStat.Value or 0
+    local initialGoodKarma = goodKarmaStat.Value or 0
+    local initialRebirths = rebirthsStat and rebirthsStat.Value or 0
+
+    local startTime = tick()
+
+    -- 🔄 ACTUALIZAR VALORES
+    local function updateLabels()
+        labels.StrengthGainedLabel.Text = "Fuerza ganada: " .. abbreviateNumber(strengthStat.Value - initialStrength)
+        labels.DurabilityGainedLabel.Text = "Durabilidad ganada: " .. abbreviateNumber(durabilityStat.Value - initialDurability)
+        labels.AgilityGainedLabel.Text = "Agilidad ganada: " .. abbreviateNumber(agilityStat.Value - initialAgility)
+        labels.KillsGainedLabel.Text = "Asesinatos ganados: " .. abbreviateNumber(killsStat.Value - initialKills)
+        labels.EvilKarmaGainedLabel.Text = "Karma maligno ganado: " .. abbreviateNumber(evilKarmaStat.Value - initialEvilKarma)
+        labels.GoodKarmaGainedLabel.Text = "Karma bueno ganado: " .. abbreviateNumber(goodKarmaStat.Value - initialGoodKarma)
+        if rebirthsStat then
+            labels.RebirthsGainedLabel.Text = "Rebirths ganados: " .. abbreviateNumber(rebirthsStat.Value - initialRebirths)
+        end
+    end
+
+    local function updateTimeSpent()
+        local timeSpent = tick() - startTime
+
+        local days = math.floor(timeSpent / 86400)
+        local hours = math.floor((timeSpent % 86400) / 3600)
+        local minutes = math.floor((timeSpent % 3600) / 60)
+        local seconds = math.floor(timeSpent % 60)
+
+        local timeText = ""
+        if days > 0 then
+            timeText = timeText .. days .. "d "
+        end
+        if hours > 0 or days > 0 then
+            timeText = timeText .. string.format("%02dh ", hours)
+        end
+        timeText = timeText .. string.format("%02dm:%02ds", minutes, seconds)
+
+        labels.TimeSpentLabel.Text = "Tiempo en el servidor: " .. timeText
+    end
+
+    -- Conexiones para actualizar en tiempo real
+    strengthStat.Changed:Connect(updateLabels)
+    durabilityStat.Changed:Connect(updateLabels)
+    agilityStat.Changed:Connect(updateLabels)
+    killsStat.Changed:Connect(updateLabels)
+    evilKarmaStat.Changed:Connect(updateLabels)
+    goodKarmaStat.Changed:Connect(updateLabels)
+    if rebirthsStat then rebirthsStat.Changed:Connect(updateLabels) end
+
+    game:GetService("RunService").Heartbeat:Connect(updateTimeSpent)
+
+    -- Actualización inicial
+    updateLabels()
+end
+
+createMyLabels()
+
+
 -- 📌 Crear Folder dentro de la pestaña "Farm OP"
 local FarmFolder = AutoFarm:AddFolder("Farm Fuerza")
 
@@ -188,17 +281,16 @@ FarmFolder:AddButton("Jungle Squat", function()
 end)
 
 
--- 📌 Crear Folder "Rebirth" dentro de la pestaña "Farm OP"
+-- 📌 FOLDER REBIRTH (Ordenado con Anti AFK antes de Anti Lag)
 local RebirthFolder = AutoFarm:AddFolder("Rebirth")
 
--- 1️⃣ Switch: Fast Rebirths
+-- 🔁 Fast Rebirths
 RebirthFolder:AddSwitch("Fast Rebirths", function(state)
     getgenv().AutoFarming = state
     if state then
         task.spawn(function()
-            local a = game:GetService("ReplicatedStorage")
+            local a = ReplicatedStorage
             local c = LocalPlayer
-
             local function equipPetByName(name)
                 local folderPets = c:FindFirstChild("petsFolder")
                 if not folderPets then return end
@@ -212,7 +304,6 @@ RebirthFolder:AddSwitch("Fast Rebirths", function(state)
                     end
                 end
             end
-
             local function unequipAllPets()
                 local f = c:FindFirstChild("petsFolder")
                 if not f then return end
@@ -225,7 +316,6 @@ RebirthFolder:AddSwitch("Fast Rebirths", function(state)
                 end
                 task.wait(0.1)
             end
-
             local function getGoldenRebirthCount()
                 local g = c:FindFirstChild("ultimatesFolder")
                 if g and g:FindFirstChild("Golden Rebirth") then
@@ -233,7 +323,6 @@ RebirthFolder:AddSwitch("Fast Rebirths", function(state)
                 end
                 return 0
             end
-
             local function getStrengthRequiredForRebirth()
                 local rebirths = c.leaderstats.Rebirths.Value
                 local baseStrength = 10000 + (5000 * rebirths)
@@ -243,19 +332,16 @@ RebirthFolder:AddSwitch("Fast Rebirths", function(state)
                 end
                 return math.floor(baseStrength)
             end
-
             while getgenv().AutoFarming do
                 local requiredStrength = getStrengthRequiredForRebirth()
                 unequipAllPets()
                 equipPetByName("Swift Samurai")
-
                 while c.leaderstats.Strength.Value < requiredStrength and getgenv().AutoFarming do
                     for _ = 1, 10 do
                         c.muscleEvent:FireServer("rep")
                     end
                     task.wait()
                 end
-
                 if getgenv().AutoFarming then
                     unequipAllPets()
                     equipPetByName("Tribal Overlord")
@@ -265,20 +351,19 @@ RebirthFolder:AddSwitch("Fast Rebirths", function(state)
                         task.wait(0.1)
                     until c.leaderstats.Rebirths.Value > oldRebirths or not getgenv().AutoFarming
                 end
-
                 task.wait()
             end
         end)
     end
 end)
 
--- 2️⃣ Switch: Lock Position
+-- 🔒 Lock Position
 RebirthFolder:AddSwitch("Lock Position", function(Value)
     if Value then
-        local currentPos = LocalPlayer.Character.HumanoidRootPart.CFrame
+        local currentPos = game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame
         getgenv().posLock = game:GetService("RunService").Heartbeat:Connect(function()
-            if LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                LocalPlayer.Character.HumanoidRootPart.CFrame = currentPos
+            if game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = currentPos
             end
         end)
     else
@@ -289,7 +374,7 @@ RebirthFolder:AddSwitch("Lock Position", function(Value)
     end
 end)
 
--- 3️⃣ Switch: Hide All Frames
+-- 🖼️ Hide All Frames
 RebirthFolder:AddSwitch("Hide All Frames", function(bool)
     local rSto = game:GetService("ReplicatedStorage")
     for _, obj in pairs(rSto:GetChildren()) do
@@ -299,7 +384,31 @@ RebirthFolder:AddSwitch("Hide All Frames", function(bool)
     end
 end)
 
--- 4️⃣ Botón: Anti Lag
+-- 🛡️ Anti AFK (ahora está aquí 👌)
+local antiAFKConnection
+local VirtualUser = game:GetService("VirtualUser")
+local LocalPlayer = game.Players.LocalPlayer
+
+RebirthFolder:AddSwitch("Anti AFK", function(state)
+    if state then
+        if antiAFKConnection then
+            antiAFKConnection:Disconnect()
+        end
+        antiAFKConnection = LocalPlayer.Idled:Connect(function()
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new())
+        end)
+        print("[AntiAFK] Activado")
+    else
+        if antiAFKConnection then
+            antiAFKConnection:Disconnect()
+            antiAFKConnection = nil
+        end
+        print("[AntiAFK] Desactivado")
+    end
+end)
+
+-- 🚀 Anti Lag
 RebirthFolder:AddButton("Anti Lag", function()
     for _, v in pairs(game:GetDescendants()) do
         if v:IsA("ParticleEmitter") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Sparkles") then
@@ -333,35 +442,15 @@ RebirthFolder:AddButton("Anti Lag", function()
     end
 
     game:GetService("StarterGui"):SetCore("SendNotification", {
-        Title = "Anti Lag activado",
+        Title = "Anti Lag Activado",
         Text = "Full optimization applied!",
         Duration = 5
     })
 end)
 
--- 5️⃣ Botón: Jungle Lift
-RebirthFolder:AddButton("Jungle Lift", function()
-    local player = game.Players.LocalPlayer
-    local char = player.Character or player.CharacterAdded:Wait()
-    local hrp = char:WaitForChild("HumanoidRootPart")
-
-    hrp.CFrame = CFrame.new(-8374.25586, 34.5933418, 2932.44995)
-
-    local machineFolder = workspace:FindFirstChild("machinesFolder")
-    if machineFolder and machineFolder:FindFirstChild("Jungle Lift") then
-        local lift = machineFolder["Jungle Lift"]:FindFirstChild("interactSeat")
-        if lift then
-            game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer("useMachine", lift)
-        end
-    end
-
-    print("[Jungle Lift] Acción ejecutada.")
-end)
-
--- 6️⃣ Botón: Auto Ruleta
+-- 🎰 Auto Ruleta
 RebirthFolder:AddButton("Auto Ruleta", function(state)
     _G.AutoSpinWheel = state
-
     if state then
         spawn(function()
             while _G.AutoSpinWheel do
@@ -375,6 +464,23 @@ RebirthFolder:AddButton("Auto Ruleta", function(state)
             end
         end)
     end
+end)
+
+-- 🟢 Jungle Lift (Nuevo)
+RebirthFolder:AddButton("Jungle Lift", function()
+    local player = game.Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    hrp.CFrame = CFrame.new(-8652.8672, 29.2667, 2089.2617)
+    task.wait(0.2)
+
+    local VirtualInputManager = game:GetService("VirtualInputManager")
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+    task.wait(0.05)
+    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+
+    print("[Jungle Lift] Teletransport ejecutado correctamente.")
 end)
 
 
