@@ -48,129 +48,25 @@ local window = library:AddWindow("⚠️ Toxic PAID V2 | By Rafael ⚠️", {
 
 local AutoFarm = window:AddTab("Farm OP")
 
-AutoFarm:AddSwitch("Fuerza OP", function(state)
+-- 📌 Crear Folder dentro de la pestaña "Farm OP"
+local FarmFolder = AutoFarm:AddFolder("Farm Fuerza")
+
+-- 1️⃣ Switch: Fuerza OP
+FarmFolder:AddSwitch("Fuerza OP", function(state)
     getgenv()._AutoRepFarmEnabled = state
     warn("[Auto Rep Farm] Estado cambiado a:", state and "ON" or "OFF")
 end)
 
--- ✅ Configuración optimizada
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local Stats = game:GetService("Stats")
-local LocalPlayer = Players.LocalPlayer
-
-local PET_NAME = "Swift Samurai"
-local ROCK_NAME = "Rock5M"
-local PROTEIN_EGG_NAME = "ProteinEgg"
-local PROTEIN_EGG_INTERVAL = 30 * 60 -- 30 min
-local REPS_PER_CYCLE = 160
-local REP_DELAY = 0.01
-local ROCK_INTERVAL = 1
-local MAX_PING = 1200
-
-local HumanoidRootPart
-local lastProteinEggTime = 0
-local lastRockTime = 0
-local RockRef = workspace:FindFirstChild(ROCK_NAME)
-
-local function getPing()
-    local success, ping = pcall(function()
-        return Stats.Network.ServerStatsItem["Data Ping"]:GetValue()
-    end)
-    return success and ping or 999
-end
-
-local function updateCharacterRefs()
-    local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    HumanoidRootPart = character:WaitForChild("HumanoidRootPart", 5)
-end
-
-local function equipPet()
-    local petsFolder = LocalPlayer:FindFirstChild("petsFolder")
-    if petsFolder and petsFolder:FindFirstChild("Unique") then
-        for _, pet in pairs(petsFolder.Unique:GetChildren()) do
-            if pet.Name == PET_NAME then
-                ReplicatedStorage.rEvents.equipPetEvent:FireServer("equipPet", pet)
-                break
-            end
-        end
-    end
-end
-
-local function eatProteinEgg()
-    if LocalPlayer:FindFirstChild("Backpack") then
-        for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
-            if item.Name == PROTEIN_EGG_NAME then
-                ReplicatedStorage.rEvents.eatEvent:FireServer("eat", item)
-                break
-            end
-        end
-    end
-end
-
-local function hitRock()
-    if not RockRef or not RockRef.Parent then
-        RockRef = workspace:FindFirstChild(ROCK_NAME)
-    end
-    if RockRef and HumanoidRootPart then
-        HumanoidRootPart.CFrame = RockRef.CFrame * CFrame.new(0, 0, -5)
-        ReplicatedStorage.rEvents.hitEvent:FireServer("hit", RockRef)
-    end
-end
-
--- ✅ Loop principal
-if not getgenv()._AutoRepFarmLoop then
-    getgenv()._AutoRepFarmLoop = true
-
-    task.spawn(function()
-        updateCharacterRefs()
-        equipPet()
-        lastProteinEggTime = tick()
-        lastRockTime = tick()
-
-        while true do
-            if getgenv()._AutoRepFarmEnabled then
-                local ping = getPing()
-                if ping > MAX_PING then
-                    warn("[Auto Rep Farm] Ping alto ("..math.floor(ping).."ms), pausando 5s...")
-                    task.wait(5)
-                else
-                    if LocalPlayer:FindFirstChild("muscleEvent") then
-                        for i = 1, REPS_PER_CYCLE do
-                            LocalPlayer.muscleEvent:FireServer("rep")
-                        end
-                    end
-
-                    if tick() - lastProteinEggTime >= PROTEIN_EGG_INTERVAL then
-                        eatProteinEgg()
-                        lastProteinEggTime = tick()
-                    end
-
-                    if tick() - lastRockTime >= ROCK_INTERVAL then
-                        hitRock()
-                        lastRockTime = tick()
-                    end
-
-                    task.wait(REP_DELAY)
-                end
-            else
-                task.wait(1)
-            end
-        end
-    end)
-end
-
--- ✅ AUTO COMER EGG (Nuevo)
+-- 2️⃣ Switch: Eat Egg (30 Min)
 local autoEatEnabled = false
-
-local function eatProteinEgg()
+local function eatProteinEggNew()
     local player = game.Players.LocalPlayer
     local backpack = player:WaitForChild("Backpack")
     local character = player.Character or player.CharacterAdded:Wait()
 
     local egg = backpack:FindFirstChild("Protein Egg")
     if egg then
-        egg.Parent = character -- equipa el huevo
+        egg.Parent = character
         pcall(function()
             egg:Activate()
         end)
@@ -183,163 +79,44 @@ end
 task.spawn(function()
     while true do
         if autoEatEnabled then
-            eatProteinEgg()
-            task.wait(1800) -- espera 30 minutos
+            eatProteinEggNew()
+            task.wait(1800)
         else
             task.wait(1)
         end
     end
 end)
 
-AutoFarm:AddSwitch("Eat Egg (30 Min)", function(state)
+FarmFolder:AddSwitch("Eat Egg (30 Min)", function(state)
     autoEatEnabled = state
+    print(state and "[AutoEgg] Activado." or "[AutoEgg] Desactivado.")
+end)
+
+-- 3️⃣ Switch: Anti AFK
+local antiAFKConnection
+local VirtualUser = game:GetService("VirtualUser")
+
+FarmFolder:AddSwitch("Anti AFK", function(state)
     if state then
-        print("[AutoEgg] Activado.")
-    else
-        print("[AutoEgg] Desactivado.")
-    end
-end)
-
--- FAST REBIRTHS
-AutoFarm:AddSwitch("Fast Rebirths", function(state)
-    getgenv().AutoFarming = state
-    if state then
-        task.spawn(function()
-            local a = ReplicatedStorage
-            local c = LocalPlayer
-            local function equipPetByName(name)
-                local folderPets = c:FindFirstChild("petsFolder")
-                if not folderPets then return end
-                for _, folder in pairs(folderPets:GetChildren()) do
-                    if folder:IsA("Folder") then
-                        for _, pet in pairs(folder:GetChildren()) do
-                            if pet.Name == name then
-                                a.rEvents.equipPetEvent:FireServer("equipPet", pet)
-                            end
-                        end
-                    end
-                end
-            end
-            local function unequipAllPets()
-                local f = c:FindFirstChild("petsFolder")
-                if not f then return end
-                for _, folder in pairs(f:GetChildren()) do
-                    if folder:IsA("Folder") then
-                        for _, pet in pairs(folder:GetChildren()) do
-                            a.rEvents.equipPetEvent:FireServer("unequipPet", pet)
-                        end
-                    end
-                end
-                task.wait(0.1)
-            end
-            local function getGoldenRebirthCount()
-                local g = c:FindFirstChild("ultimatesFolder")
-                if g and g:FindFirstChild("Golden Rebirth") then
-                    return g["Golden Rebirth"].Value
-                end
-                return 0
-            end
-            local function getStrengthRequiredForRebirth()
-                local rebirths = c.leaderstats.Rebirths.Value
-                local baseStrength = 10000 + (5000 * rebirths)
-                local golden = getGoldenRebirthCount()
-                if golden >= 1 and golden <= 5 then
-                    baseStrength = baseStrength * (1 - golden * 0.1)
-                end
-                return math.floor(baseStrength)
-            end
-            while getgenv().AutoFarming do
-                local requiredStrength = getStrengthRequiredForRebirth()
-                unequipAllPets()
-                equipPetByName("Swift Samurai")
-                while c.leaderstats.Strength.Value < requiredStrength and getgenv().AutoFarming do
-                    for _ = 1, 10 do
-                        c.muscleEvent:FireServer("rep")
-                    end
-                    task.wait()
-                end
-                if getgenv().AutoFarming then
-                    unequipAllPets()
-                    equipPetByName("Tribal Overlord")
-                    local oldRebirths = c.leaderstats.Rebirths.Value
-                    repeat
-                        a.rEvents.rebirthRemote:InvokeServer("rebirthRequest")
-                        task.wait(0.1)
-                    until c.leaderstats.Rebirths.Value > oldRebirths or not getgenv().AutoFarming
-                end
-                task.wait()
-            end
-        end)
-    end
-end)
-
--- AUTO JUNGLE SQUAT
-local jungleSquatToggle = false
-AutoFarm:AddSwitch("Jungle Squat", function(State)
-    jungleSquatToggle = State
-    if State then
-        task.spawn(function()
-            while jungleSquatToggle do
-                local char = LocalPlayer.Character
-                if char and char:FindFirstChild("HumanoidRootPart") then
-                    char:SetPrimaryPartCFrame(CFrame.new(-8374.25586, 34.5933418, 2932.44995))
-                    local machine = workspace:FindFirstChild("machinesFolder")
-                    if machine and machine:FindFirstChild("Jungle Squat") then
-                        local seat = machine["Jungle Squat"]:FindFirstChild("interactSeat")
-                        if seat then
-                            ReplicatedStorage.rEvents.machineInteractRemote:InvokeServer("useMachine", seat)
-                        end
-                    end
-                end
-                task.wait(0.1)
-            end
-        end)
-    end
-end)
-
--- AUTO JUNGLE BAR LIFT
-local jungleBarLiftToggle = false
-AutoFarm:AddSwitch("Jungle Bar Lift", function(State)
-    jungleBarLiftToggle = State
-    if State then
-        task.spawn(function()
-            while jungleBarLiftToggle do
-                local char = LocalPlayer.Character
-                if char and char:FindFirstChild("HumanoidRootPart") then
-                    char:SetPrimaryPartCFrame(CFrame.new(-8678.05566, 14.5030098, 2089.25977))
-                    local machine = workspace:FindFirstChild("machinesFolder")
-                    if machine and machine:FindFirstChild("Jungle Bar Lift") then
-                        local seat = machine["Jungle Bar Lift"]:FindFirstChild("interactSeat")
-                        if seat then
-                            ReplicatedStorage.rEvents.machineInteractRemote:InvokeServer("useMachine", seat)
-                        end
-                    end
-                end
-                task.wait(0.1)
-            end
-        end)
-    end
-end)
-
--- LOCK POSITION
-AutoFarm:AddSwitch("Lock Position", function(Value)
-    if Value then
-        local currentPos = LocalPlayer.Character.HumanoidRootPart.CFrame
-        getgenv().posLock = RunService.Heartbeat:Connect(function()
-            if LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                LocalPlayer.Character.HumanoidRootPart.CFrame = currentPos
-            end
-        end)
-    else
-        if getgenv().posLock then
-            getgenv().posLock:Disconnect()
-            getgenv().posLock = nil
+        if antiAFKConnection then
+            antiAFKConnection:Disconnect()
         end
+        antiAFKConnection = LocalPlayer.Idled:Connect(function()
+            VirtualUser:CaptureController()
+            VirtualUser:ClickButton2(Vector2.new())
+        end)
+        print("[AntiAFK] Activado")
+    else
+        if antiAFKConnection then
+            antiAFKConnection:Disconnect()
+            antiAFKConnection = nil
+        end
+        print("[AntiAFK] Desactivado")
     end
 end)
 
--- ANTI LAG
-AutoFarm:AddSwitch("Anti Lag", function(State)
+-- 4️⃣ Switch: Anti Lag
+FarmFolder:AddSwitch("Anti Lag", function(State)
     local lighting = game:GetService("Lighting")
     if State then
         for _, gui in pairs(LocalPlayer.PlayerGui:GetChildren()) do
@@ -380,34 +157,209 @@ AutoFarm:AddSwitch("Anti Lag", function(State)
     end
 end)
 
--- ANTI AFK
-local antiAFKConnection
-local VirtualUser = game:GetService("VirtualUser")
-local LocalPlayer = game.Players.LocalPlayer
+-- 🎰 Botón: Girar Ruleta
+FarmFolder:AddButton("Girar Ruleta", function()
+    pcall(function()
+        game:GetService("ReplicatedStorage").rEvents.openFortuneWheelRemote:InvokeServer(
+            "openFortuneWheel",
+            game:GetService("ReplicatedStorage").fortuneWheelChances["Fortune Wheel"]
+        )
+    end)
+    print("[Ruleta] Giro ejecutado.")
+end)
 
-AutoFarm:AddSwitch("Anti AFK", function(state)
-    if state then
-        -- Activar Anti-AFK
-        if antiAFKConnection then
-            antiAFKConnection:Disconnect()
+-- 🎮 Botón: Jungle Squat
+FarmFolder:AddButton("Jungle Squat", function()
+    local char = LocalPlayer.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        char:SetPrimaryPartCFrame(CFrame.new(-8374.25586, 34.5933418, 2932.44995))
+        
+        local machine = workspace:FindFirstChild("machinesFolder")
+        if machine and machine:FindFirstChild("Jungle Squat") then
+            local seat = machine["Jungle Squat"]:FindFirstChild("interactSeat")
+            if seat then
+                game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer("useMachine", seat)
+            end
         end
-        antiAFKConnection = LocalPlayer.Idled:Connect(function()
-            VirtualUser:CaptureController()
-            VirtualUser:ClickButton2(Vector2.new())
-        end)
-        print("[AntiAFK] Activado")
+        print("[Jungle Squat] Acción ejecutada.")
     else
-        -- Desactivar Anti-AFK
-        if antiAFKConnection then
-            antiAFKConnection:Disconnect()
-            antiAFKConnection = nil
-        end
-        print("[AntiAFK] Desactivado")
+        warn("[Jungle Squat] Personaje no encontrado o no tiene HumanoidRootPart.")
     end
 end)
 
--- ✅ Switch para girar la ruleta automáticamente
-AutoFarm:AddSwitch("Auto Ruleta", function(state)
+
+-- 📌 Crear Folder "Rebirth" dentro de la pestaña "Farm OP"
+local RebirthFolder = AutoFarm:AddFolder("Rebirth")
+
+-- 1️⃣ Switch: Fast Rebirths
+RebirthFolder:AddSwitch("Fast Rebirths", function(state)
+    getgenv().AutoFarming = state
+    if state then
+        task.spawn(function()
+            local a = game:GetService("ReplicatedStorage")
+            local c = LocalPlayer
+
+            local function equipPetByName(name)
+                local folderPets = c:FindFirstChild("petsFolder")
+                if not folderPets then return end
+                for _, folder in pairs(folderPets:GetChildren()) do
+                    if folder:IsA("Folder") then
+                        for _, pet in pairs(folder:GetChildren()) do
+                            if pet.Name == name then
+                                a.rEvents.equipPetEvent:FireServer("equipPet", pet)
+                            end
+                        end
+                    end
+                end
+            end
+
+            local function unequipAllPets()
+                local f = c:FindFirstChild("petsFolder")
+                if not f then return end
+                for _, folder in pairs(f:GetChildren()) do
+                    if folder:IsA("Folder") then
+                        for _, pet in pairs(folder:GetChildren()) do
+                            a.rEvents.equipPetEvent:FireServer("unequipPet", pet)
+                        end
+                    end
+                end
+                task.wait(0.1)
+            end
+
+            local function getGoldenRebirthCount()
+                local g = c:FindFirstChild("ultimatesFolder")
+                if g and g:FindFirstChild("Golden Rebirth") then
+                    return g["Golden Rebirth"].Value
+                end
+                return 0
+            end
+
+            local function getStrengthRequiredForRebirth()
+                local rebirths = c.leaderstats.Rebirths.Value
+                local baseStrength = 10000 + (5000 * rebirths)
+                local golden = getGoldenRebirthCount()
+                if golden >= 1 and golden <= 5 then
+                    baseStrength = baseStrength * (1 - golden * 0.1)
+                end
+                return math.floor(baseStrength)
+            end
+
+            while getgenv().AutoFarming do
+                local requiredStrength = getStrengthRequiredForRebirth()
+                unequipAllPets()
+                equipPetByName("Swift Samurai")
+
+                while c.leaderstats.Strength.Value < requiredStrength and getgenv().AutoFarming do
+                    for _ = 1, 10 do
+                        c.muscleEvent:FireServer("rep")
+                    end
+                    task.wait()
+                end
+
+                if getgenv().AutoFarming then
+                    unequipAllPets()
+                    equipPetByName("Tribal Overlord")
+                    local oldRebirths = c.leaderstats.Rebirths.Value
+                    repeat
+                        a.rEvents.rebirthRemote:InvokeServer("rebirthRequest")
+                        task.wait(0.1)
+                    until c.leaderstats.Rebirths.Value > oldRebirths or not getgenv().AutoFarming
+                end
+
+                task.wait()
+            end
+        end)
+    end
+end)
+
+-- 2️⃣ Switch: Lock Position
+RebirthFolder:AddSwitch("Lock Position", function(Value)
+    if Value then
+        local currentPos = LocalPlayer.Character.HumanoidRootPart.CFrame
+        getgenv().posLock = game:GetService("RunService").Heartbeat:Connect(function()
+            if LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                LocalPlayer.Character.HumanoidRootPart.CFrame = currentPos
+            end
+        end)
+    else
+        if getgenv().posLock then
+            getgenv().posLock:Disconnect()
+            getgenv().posLock = nil
+        end
+    end
+end)
+
+-- 3️⃣ Switch: Hide All Frames
+RebirthFolder:AddSwitch("Hide All Frames", function(bool)
+    local rSto = game:GetService("ReplicatedStorage")
+    for _, obj in pairs(rSto:GetChildren()) do
+        if obj.Name:match("Frame$") then
+            obj.Visible = not bool
+        end
+    end
+end)
+
+-- 4️⃣ Botón: Anti Lag
+RebirthFolder:AddButton("Anti Lag", function()
+    for _, v in pairs(game:GetDescendants()) do
+        if v:IsA("ParticleEmitter") or v:IsA("Smoke") or v:IsA("Fire") or v:IsA("Sparkles") then
+            v.Enabled = false
+        end
+    end
+
+    local lighting = game:GetService("Lighting")
+    lighting.GlobalShadows = false
+    lighting.FogEnd = 9e9
+    lighting.Brightness = 0
+
+    settings().Rendering.QualityLevel = 1
+
+    for _, v in pairs(game:GetDescendants()) do
+        if v:IsA("Decal") or v:IsA("Texture") then
+            v.Transparency = 1
+        elseif v:IsA("BasePart") and not v:IsA("MeshPart") then
+            v.Material = Enum.Material.SmoothPlastic
+            if v.Parent and (v.Parent:FindFirstChild("Humanoid") or v.Parent.Parent:FindFirstChild("Humanoid")) then
+            else
+                v.Reflectance = 0
+            end
+        end
+    end
+
+    for _, v in pairs(lighting:GetChildren()) do
+        if v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or v:IsA("ColorCorrectionEffect") or v:IsA("BloomEffect") or v:IsA("DepthOfFieldEffect") then
+            v.Enabled = false
+        end
+    end
+
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "Anti Lag activado",
+        Text = "Full optimization applied!",
+        Duration = 5
+    })
+end)
+
+-- 5️⃣ Botón: Jungle Lift
+RebirthFolder:AddButton("Jungle Lift", function()
+    local player = game.Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    hrp.CFrame = CFrame.new(-8374.25586, 34.5933418, 2932.44995)
+
+    local machineFolder = workspace:FindFirstChild("machinesFolder")
+    if machineFolder and machineFolder:FindFirstChild("Jungle Lift") then
+        local lift = machineFolder["Jungle Lift"]:FindFirstChild("interactSeat")
+        if lift then
+            game:GetService("ReplicatedStorage").rEvents.machineInteractRemote:InvokeServer("useMachine", lift)
+        end
+    end
+
+    print("[Jungle Lift] Acción ejecutada.")
+end)
+
+-- 6️⃣ Botón: Auto Ruleta
+RebirthFolder:AddButton("Auto Ruleta", function(state)
     _G.AutoSpinWheel = state
 
     if state then
@@ -419,7 +371,7 @@ AutoFarm:AddSwitch("Auto Ruleta", function(state)
                         game:GetService("ReplicatedStorage").fortuneWheelChances["Fortune Wheel"]
                     )
                 end)
-                task.wait(1.5) -- ⏳ Espera entre giros (seguro para no saturar el servidor)
+                task.wait(1.5)
             end
         end)
     end
