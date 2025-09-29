@@ -48,99 +48,6 @@ local window = library:AddWindow("⚠️ Toxic PAID V2 | By Rafael ⚠️", {
 
 local AutoFarm = window:AddTab("Farm OP")
 
--- 📌 PESTAÑA FARM OP
-local FarmOP = window:AddTab("Farm OP")
-
--- 📊 LABELS DE STATS
-local labels = {
-    TimeSpentLabel = FarmOP:AddLabel("Tiempo en el servidor: 00:00"),
-    StrengthGainedLabel = FarmOP:AddLabel("Fuerza ganada: 0"),
-    DurabilityGainedLabel = FarmOP:AddLabel("Durabilidad ganada: 0"),
-    AgilityGainedLabel = FarmOP:AddLabel("Agilidad ganada: 0"),
-    KillsGainedLabel = FarmOP:AddLabel("Asesinatos ganados: 0"),
-    EvilKarmaGainedLabel = FarmOP:AddLabel("Karma maligno ganado: 0"),
-    GoodKarmaGainedLabel = FarmOP:AddLabel("Karma bueno ganado: 0"),
-    RebirthsGainedLabel = FarmOP:AddLabel("Rebirths ganados: 0")
-}
-
--- 🧠 FUNCIÓN PARA CREAR Y ACTUALIZAR LAS LABELS
-local function createMyLabels()
-    local player = game.Players.LocalPlayer
-    if not player then return end
-
-    local leaderstats = player:WaitForChild("leaderstats")
-    if not leaderstats then return end
-
-    local strengthStat = leaderstats:WaitForChild("Strength")
-    local durabilityStat = player:WaitForChild("Durability")
-    local agilityStat = player:WaitForChild("Agility")
-    local killsStat = leaderstats:WaitForChild("Kills")
-    local evilKarmaStat = player:WaitForChild("evilKarma")
-    local goodKarmaStat = player:WaitForChild("goodKarma")
-    local rebirthsStat = leaderstats:FindFirstChild("Rebirths")
-
-    -- Guardar valores iniciales
-    local initialStrength = strengthStat.Value or 0
-    local initialDurability = durabilityStat.Value or 0
-    local initialAgility = agilityStat.Value or 0
-    local initialKills = killsStat.Value or 0
-    local initialEvilKarma = evilKarmaStat.Value or 0
-    local initialGoodKarma = goodKarmaStat.Value or 0
-    local initialRebirths = rebirthsStat and rebirthsStat.Value or 0
-
-    local startTime = tick()
-
-    -- 🔄 ACTUALIZAR VALORES
-    local function updateLabels()
-        labels.StrengthGainedLabel.Text = "Fuerza ganada: " .. abbreviateNumber(strengthStat.Value - initialStrength)
-        labels.DurabilityGainedLabel.Text = "Durabilidad ganada: " .. abbreviateNumber(durabilityStat.Value - initialDurability)
-        labels.AgilityGainedLabel.Text = "Agilidad ganada: " .. abbreviateNumber(agilityStat.Value - initialAgility)
-        labels.KillsGainedLabel.Text = "Asesinatos ganados: " .. abbreviateNumber(killsStat.Value - initialKills)
-        labels.EvilKarmaGainedLabel.Text = "Karma maligno ganado: " .. abbreviateNumber(evilKarmaStat.Value - initialEvilKarma)
-        labels.GoodKarmaGainedLabel.Text = "Karma bueno ganado: " .. abbreviateNumber(goodKarmaStat.Value - initialGoodKarma)
-        if rebirthsStat then
-            labels.RebirthsGainedLabel.Text = "Rebirths ganados: " .. abbreviateNumber(rebirthsStat.Value - initialRebirths)
-        end
-    end
-
-    local function updateTimeSpent()
-        local timeSpent = tick() - startTime
-
-        local days = math.floor(timeSpent / 86400)
-        local hours = math.floor((timeSpent % 86400) / 3600)
-        local minutes = math.floor((timeSpent % 3600) / 60)
-        local seconds = math.floor(timeSpent % 60)
-
-        local timeText = ""
-        if days > 0 then
-            timeText = timeText .. days .. "d "
-        end
-        if hours > 0 or days > 0 then
-            timeText = timeText .. string.format("%02dh ", hours)
-        end
-        timeText = timeText .. string.format("%02dm:%02ds", minutes, seconds)
-
-        labels.TimeSpentLabel.Text = "Tiempo en el servidor: " .. timeText
-    end
-
-    -- Conexiones para actualizar en tiempo real
-    strengthStat.Changed:Connect(updateLabels)
-    durabilityStat.Changed:Connect(updateLabels)
-    agilityStat.Changed:Connect(updateLabels)
-    killsStat.Changed:Connect(updateLabels)
-    evilKarmaStat.Changed:Connect(updateLabels)
-    goodKarmaStat.Changed:Connect(updateLabels)
-    if rebirthsStat then rebirthsStat.Changed:Connect(updateLabels) end
-
-    game:GetService("RunService").Heartbeat:Connect(updateTimeSpent)
-
-    -- Actualización inicial
-    updateLabels()
-end
-
-createMyLabels()
-
-
 -- 📌 Crear Folder dentro de la pestaña "Farm OP"
 local FarmFolder = AutoFarm:AddFolder("Farm Fuerza")
 
@@ -481,6 +388,128 @@ RebirthFolder:AddButton("Jungle Lift", function()
     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 
     print("[Jungle Lift] Teletransport ejecutado correctamente.")
+end)
+
+
+local autoEquipToolsFolder = AutoFarm:AddFolder("Auto Tools")
+
+-- Botón para desbloquear el Gamepass AutoLift
+autoEquipToolsFolder:AddButton("Gamepass AutoLift", function()
+    local gamepassFolder = game:GetService("ReplicatedStorage").gamepassIds
+    local player = game:GetService("Players").LocalPlayer
+    for _, gamepass in pairs(gamepassFolder:GetChildren()) do
+        local value = Instance.new("IntValue")
+        value.Name = gamepass.Name
+        value.Value = gamepass.Value
+        value.Parent = player.ownedGamepasses
+    end
+end)
+
+-- Función para crear switches de auto-equip
+local function createAutoToolSwitch(toolName, globalVar)
+    autoEquipToolsFolder:AddSwitch("Auto " .. toolName, function(Value)
+        _G[globalVar] = Value
+        
+        if Value then
+            local tool = LocalPlayer.Backpack:FindFirstChild(toolName)
+            if tool then
+                LocalPlayer.Character.Humanoid:EquipTool(tool)
+            end
+        else
+            local character = LocalPlayer.Character
+            local equipped = character:FindFirstChild(toolName)
+            if equipped then
+                equipped.Parent = LocalPlayer.Backpack
+            end
+        end
+        
+        task.spawn(function()
+            while _G[globalVar] do
+                if not _G[globalVar] then break end
+                LocalPlayer.muscleEvent:FireServer("rep")
+                task.wait(0.1)
+            end
+        end)
+    end)
+end
+
+createAutoToolSwitch("Weight", "AutoWeight")
+createAutoToolSwitch("Pushups", "AutoPushups")
+createAutoToolSwitch("Handstands", "AutoHandstands")
+createAutoToolSwitch("Situps", "AutoSitups")
+
+
+autoEquipToolsFolder:AddSwitch("Auto Punch", function(Value)
+    _G.fastHitActive = Value
+    
+    if Value then
+        task.spawn(function()
+            while _G.fastHitActive do
+                if not _G.fastHitActive then break end
+                
+                local punch = LocalPlayer.Backpack:FindFirstChild("Punch")
+                if punch then
+                    punch.Parent = LocalPlayer.Character
+                    if punch:FindFirstChild("attackTime") then
+                        punch.attackTime.Value = 0
+                    end
+                end
+                task.wait(0.1)
+            end
+        end)
+        
+        task.spawn(function()
+            while _G.fastHitActive do
+                if not _G.fastHitActive then break end
+                
+                LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+                LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+                
+                local character = LocalPlayer.Character
+                if character then
+                    local punchTool = character:FindFirstChild("Punch")
+                    if punchTool then
+                        punchTool:Activate()
+                    end
+                end
+                task.wait()
+            end
+        end)
+    else
+        local character = LocalPlayer.Character
+        local equipped = character:FindFirstChild("Punch")
+        if equipped then
+            equipped.Parent = LocalPlayer.Backpack
+        end
+    end
+end)
+
+autoEquipToolsFolder:AddSwitch("Fast Tools", function(Value)
+    _G.FastTools = Value
+    
+    local toolSettings = {
+        {"Punch", "attackTime", Value and 0 or 0.35},
+        {"Ground Slam", "attackTime", Value and 0 or 6},
+        {"Stomp", "attackTime", Value and 0 or 7},
+        {"Handstands", "repTime", Value and 0 or 1},
+        {"Pushups", "repTime", Value and 0 or 1},
+        {"Weight", "repTime", Value and 0 or 1},
+        {"Situps", "repTime", Value and 0 or 1}
+    }
+    
+    local backpack = LocalPlayer:WaitForChild("Backpack")
+    
+    for _, toolInfo in ipairs(toolSettings) do
+        local tool = backpack:FindFirstChild(toolInfo[1])
+        if tool and tool:FindFirstChild(toolInfo[2]) then
+            tool[toolInfo[2]].Value = toolInfo[3]
+        end
+        
+        local equippedTool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild(toolInfo[1])
+        if equippedTool and equippedTool:FindFirstChild(toolInfo[2]) then
+            equippedTool[toolInfo[2]].Value = toolInfo[3]
+        end
+    end
 end)
 
 
@@ -3554,6 +3583,6 @@ end)
 local Credits = window:AddTab("Credits")
 
 Credits:AddLabel("Toxic Paid V2")
-Credits:AddLabel("Script Hecho por:")
-Credits:AddLabel("DeathKiller")
-Credits:AddLabel("TikTok: DeathKiller")
+Credits:AddLabel("Script Hecho por: Rafael")
+Credits:AddLabel("Tiktok:DeathKiller")
+Credits:AddLabel("MVX ON TOP 🔥")
